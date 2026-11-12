@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nhân Công - Kết Nối Toàn Cầu</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23e11d48' d='M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141-34.7-5.8-70.6 2.5-98.7 22.9L256 94.7l-37.9-27.7c-28.1-20.4-64-28.7-98.7-22.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z'/></svg>">
-
+    <title>Nhân Công - Kết Nối Việc Làm Thời Vụ</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23e11d48' d='M96 96c0-17.7 14.3-32 32-32h256c17.7 0 32 14.3 32 32v32h96c17.7 0 32 14.3 32 32v288c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96V96zm64 32h192V96H160v32z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -96,10 +95,10 @@
     <div class="max-w-5xl mx-auto px-4 py-2 flex justify-between items-center">
         <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
             <div class="bg-rose-600 text-white p-1.5 rounded-xl shadow-md flex items-center justify-center w-11 h-11 text-lg">
-                <i class="fa-solid fa-heart-pulse text-sm"></i>
+                <i class="fa-solid fa-person-carrying text-sm"></i>
             </div>
             <div>
-                <span class="text-2xl font-black text-rose-600 tracking-wide leading-none block">Seeing Love</span>
+                <span class="text-2xl font-black text-rose-600 tracking-wide leading-none block">Nhân Công</span>
             </div>
         </div>
         
@@ -297,11 +296,30 @@
             </div>
 
             <!-- Slide 2: Thể chất & Kinh nghiệm -->
+            <!-- Slide 2: Thể chất & Kinh nghiệm -->
             <div class="profile-slide hidden space-y-3" data-slide="2">
                 <div class="flex gap-2">
                     <input type="number" id="profile-height" required min="130" max="220" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Chiều cao (cm)">
                     <input type="number" id="profile-weight" required min="35" max="150" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Cân nặng (kg)">
                 </div>
+                
+                <!-- Ô LĨNH VỰC MỚI ĐƯỢC BỔ SUNG THÊM -->
+                <div>
+                    <select id="profile-profession" required class="w-full px-3 py-3 rounded-xl outline-none bg-white font-semibold text-rose-900 border border-rose-200">
+                        <option value="" disabled selected>Lĩnh vực chuyên môn</option>
+                        <option value="Lao động phổ thông, phụ việc">Lao động phổ thông, phụ việc</option>
+                        <option value="Lái xe/Vận tải/Giao hàng">Lái xe/Vận tải/Giao hàng</option>
+                        <option value="Trông trẻ, chăm sóc cao tuổi">Trông trẻ, chăm sóc người cao tuổi</option>
+                        <option value="Xây dựng">Xây dựng (Thợ xây, nề, sơn, thạch cao...)</option>
+                        <option value="Cơ khí">Cơ khí (Thợ sắt, hàn, tiện, nhôm kính...)</option>
+                        <option value="Điện/Nước">Điện/Nước</option>
+                        <option value="Hành chính/Văn phòng/Lễ tân">Hành chính/Văn phòng/Lễ tân</option>
+                        <option value="Kế toán sổ sách">Kế toán sổ sách</option>
+                        <option value="Quản trị kinh doanh">Quản trị kinh doanh</option>
+                        <option value="Khác">Khác...</option>
+                    </select>
+                </div>
+
                 <div>
                     <input type="text" id="profile-experience" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Kinh nghiệm & Tay nghề (VD: 5 năm thợ mộc)">
                 </div>
@@ -318,9 +336,9 @@
                             <option value="" disabled selected>Trình độ & Ngoại hình</option>
                             <option value="Lao động phổ thông">Lao động phổ thông</option>
                             <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
-                            <option value="Tay nghề cứng & trình độ trung bình">Tay nghề cứng & trình độ trung bình</option>
-                            <option value="Kinh nghiệm tốt & trình độ tốt">Kinh nghiệm tốt & trình độ tốt</option>
-                            <option value="Tinh hoa" class="locked-option">🔒 Hình thức đẹp & Trình độ cao (Tinh hoa)</option>
+                            <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
+                            <option value="Tay nghề tốt & trình độ cao ">Tay nghề tốt & trình độ cao</option>
+                            <option value="Tinh hoa" class="locked-option">🔒 Chuyên gia cao cấp & Hình thức đẹp (Tinh hoa)</option>
                         </select>
                     </div>
                     <div>
@@ -422,12 +440,11 @@
             <div class="filter-slide-p hidden space-y-3" data-filter-slide="2">
                 <div>
                     <select id="filter-looks-edu-p" onchange="handleLockedSelect(this)" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
-                            <option value="" disabled selected>Trình độ & Ngoại hình</option>
                             <option value="Lao động phổ thông">Lao động phổ thông</option>
                             <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
-                            <option value="Tay nghề cứng & trình độ trung bình">Tay nghề cứng & trình độ trung bình</option>
-                            <option value="Kinh nghiệm tốt & trình độ tốt">Kinh nghiệm tốt & trình độ tốt</option>
-                            <option value="Tinh hoa" class="locked-option">🔒 Hình thức đẹp & Trình độ cao (Tinh hoa)</option>
+                            <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
+                            <option value="Tay nghề tốt & trình độ cao ">Tay nghề tốt & trình độ cao</option>
+                            <option value="Tinh hoa" class="locked-option">🔒 Chuyên gia cao cấp & Hình thức đẹp (Tinh hoa)</option>
                     </select>
                 </div>
                 <div>
@@ -511,9 +528,9 @@
                             <option value="" disabled selected>Trình độ & Ngoại hình</option>
                             <option value="Lao động phổ thông">Lao động phổ thông</option>
                             <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
-                            <option value="Tay nghề cứng & trình độ trung bình">Tay nghề cứng & trình độ trung bình</option>
-                            <option value="Kinh nghiệm tốt & trình độ tốt">Kinh nghiệm tốt & trình độ tốt</option>
-                            <option value="Tinh hoa" class="locked-option">🔒 Hình thức đẹp & Trình độ cao (Tinh hoa)</option>
+                            <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
+                            <option value="Tay nghề tốt & trình độ cao ">Tay nghề tốt & trình độ cao</option>
+                            <option value="Tinh hoa" class="locked-option">🔒 Chuyên gia cao cấp & Hình thức đẹp (Tinh hoa)</option>
                     </select>
                 </div>
                 <div>
@@ -4198,12 +4215,12 @@ function toggleCam() {
         <div>
             <div class="flex items-center space-x-2.5 mb-2 cursor-pointer" onclick="goHome()">
                 <div class="bg-rose-600 text-white p-2 rounded-2xl shadow-md flex items-center justify-center w-12 h-12 text-lg">
-                    <i class="fa-solid fa-heart-pulse text-lg"></i>
+                    <i class="fa-solid fa-person-carrying text-lg"></i>
                 </div>
-                <span class="text-lg font-black text-white tracking-wide">Seeing Love</span>
+                <span class="text-lg font-black text-white tracking-wide">Nhân Công</span>
             </div>
-            <p class="text-xs text-rose-200 italic mb-1">Nơi tình yêu tìm đến bên ta</p>
-            <p class="text-xs text-rose-300 leading-relaxed">Kết nối trò chuyện trực tuyến qua đám mây Google</p>
+            <p class="text-xs text-rose-200 italic mb-1">Sàn cung ứng việc làm & Lao động thời vụ</p>
+            <p class="text-xs text-rose-300 leading-relaxed">Kết nối trao đổi công việc an toàn qua đám mây Google</p>
         </div>
         <div>
             <h4 class="font-bold text-amber-300 uppercase tracking-wider mb-2 text-xs">THÔNG TIN & ĐIỀU KHOẢN</h4>
@@ -4215,7 +4232,7 @@ function toggleCam() {
         </div>
     </div>
     <div class="text-center text-sm font-bold bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent border-t border-rose-800/80 pt-4 mt-auto">
-        © 2026 Seeing Love. Tất cả các quyền được bảo lưu.
+        © 2026 NhanCong.Net. Tất cả các quyền được bảo lưu.
     </div>
 </footer>
 
