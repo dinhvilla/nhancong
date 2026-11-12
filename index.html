@@ -1306,29 +1306,16 @@ if(!uDoc.exists) {
     }
 
     function changeFilterSlide(type, direction) {
-        if (type === 'p') {
-            currentFilterSlideP += direction;
-            if (currentFilterSlideP < 1) currentFilterSlideP = 1;
-            if (currentFilterSlideP > 2) currentFilterSlideP = 2; // Giảm xuống 2 slide
+        currentFilterSlideP += direction;
+        if (currentFilterSlideP < 1) currentFilterSlideP = 1;
+        if (currentFilterSlideP > 2) currentFilterSlideP = 2; // Giảm xuống 2 slide
 
-            document.querySelectorAll('.filter-slide-p').forEach((s, idx) => {
-                s.classList.toggle('hidden', idx + 1 !== currentFilterSlideP);
-            });
-            document.getElementById('prev-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 1);
-            document.getElementById('next-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 2);
-            document.getElementById('search-filter-p-btn').classList.toggle('hidden', currentFilterSlideP !== 2);
-        } else {
-            currentFilterSlideV += direction;
-            if (currentFilterSlideV < 1) currentFilterSlideV = 1;
-            if (currentFilterSlideV > 2) currentFilterSlideV = 2; // Giảm xuống 2 slide
-
-            document.querySelectorAll('.filter-slide-v').forEach((s, idx) => {
-                s.classList.toggle('hidden', idx + 1 !== currentFilterSlideV);
-            });
-            document.getElementById('prev-filter-v-btn').classList.toggle('hidden', currentFilterSlideV === 1);
-            document.getElementById('next-filter-v-btn').classList.toggle('hidden', currentFilterSlideV === 2);
-            document.getElementById('search-filter-v-btn').classList.toggle('hidden', currentFilterSlideV !== 2);
-        }
+        document.querySelectorAll('.filter-slide-p').forEach((s, idx) => {
+            s.classList.toggle('hidden', idx + 1 !== currentFilterSlideP);
+        });
+        document.getElementById('prev-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 1);
+        document.getElementById('next-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 2);
+        document.getElementById('search-filter-p-btn').classList.toggle('hidden', currentFilterSlideP !== 2);
     }
 
     function openInfoModal(type) {
@@ -1414,6 +1401,7 @@ if(!uDoc.exists) {
                         looksEdu: data.looksEdu || "",
                         price: data.price || 0,
                         experience: data.experience || "",
+                        profession: data.profession || "",
                         quantity: data.quantity || 1,
                         address: data.address || "",
                         desc: data.bio || "Chưa có lời giới thiệu.",
@@ -1423,10 +1411,12 @@ if(!uDoc.exists) {
                 }
             });
 
-            // 1. Phân loại Phổ thông / Tinh hoa
-            let list = cloudCandidates.filter(item => item.type === type);
-            if (type === 'phothong') {
-                list = list.filter(item => item.looksEdu !== "Tinh hoa"); // Phổ thông tuyệt đối loại trừ Tinh hoa
+           let list = cloudCandidates;
+
+            // 1. Lọc Lĩnh vực chuyên môn
+            const filterProfession = document.getElementById('filter-profession-p').value;
+            if (filterProfession && filterProfession !== "Tất cả/Bất kể") {
+                list = list.filter(item => item.profession === filterProfession);
             }
 
             // 2. Lọc Giới tính
@@ -1437,19 +1427,19 @@ if(!uDoc.exists) {
             // 3. Lọc Độ tuổi
             if (filterAge && filterAge !== "Tất cả/Bất kể") {
                 if (filterAge === "46+") {
-                    list = list.filter(item => item.age >= 46);
+                    list = list.filter(item => item.age >= 46 && item.age <= 55);
+                } else if (filterAge === "56+") {
+                    list = list.filter(item => item.age >= 56);
                 } else {
                     let parts = filterAge.split('-');
                     if (parts.length === 2) {
-                        let minA = parseInt(parts[0]);
-                        let maxA = parseInt(parts[1]);
-                        list = list.filter(item => item.age >= minA && item.age <= maxA);
+                        list = list.filter(item => item.age >= parseInt(parts[0]) && item.age <= parseInt(parts[1]));
                     }
                 }
             }
 
             // 4. Lọc Trình độ & Ngoại hình
-            if (filterLooksEdu && filterLooksEdu !== "Tất cả/Bất kể" && filterLooksEdu !== "locked") {
+            if (filterLooksEdu && filterLooksEdu !== "Tất cả/Bất kể") {
                 list = list.filter(item => item.looksEdu === filterLooksEdu);
             }
 
@@ -1775,6 +1765,7 @@ if(!uDoc.exists) {
         
         document.getElementById('modal-partner-age').innerText = activePartnerFullData.age ? activePartnerFullData.age + " tuổi" : "-";
         document.getElementById('modal-partner-height').innerText = (activePartnerFullData.height ? activePartnerFullData.height + " cm" : "-") + " / " + (activePartnerFullData.weight ? activePartnerFullData.weight + " kg" : "-");
+        document.getElementById('modal-partner-profession').innerText = activePartnerFullData.profession || "-";
         document.getElementById('modal-partner-exp').innerText = activePartnerFullData.experience || "-";
         document.getElementById('modal-partner-looksedu').innerText = activePartnerFullData.looksEdu || "-";
         document.getElementById('modal-partner-price').innerText = activePartnerFullData.price ? activePartnerFullData.price.toLocaleString('vi-VN') + "đ/ngày" : "Thỏa thuận";
@@ -1997,19 +1988,7 @@ if(!uDoc.exists) {
     }
 
     function applyMemberSearchPermission() {
-        const pWrapper = document.getElementById('phothong-search-wrapper');
-        const vWrapper = document.getElementById('tinhhoa-search-wrapper');
-        
-        // [SỬA LỖI]: Kiểm tra lại trạng thái Tinh hoa một cách độc lập
-        isEliteMember = currentMemberCode.startsWith("V") || userPoints >= FEE_TINHHOA;
-
-        if (isEliteMember) {
-            pWrapper.classList.add('hidden');
-            vWrapper.classList.remove('hidden');
-        } else {
-            pWrapper.classList.remove('hidden');
-            vWrapper.classList.add('hidden');
-        }
+        // Đã xóa bỏ phân quyền Tinh Hoa/Phổ thông. Mọi người dùng chung 1 bộ lọc tìm kiếm.
     }
 
     async function resetToLogin() {
@@ -2209,18 +2188,11 @@ if(!uDoc.exists) {
         if (!newPass || newPass.trim() === "") { alert("🛑 Bạn chưa tạo mật khẩu!"); return; }
 
         const ageVal = parseInt(document.getElementById('profile-age').value.trim()) || 18;
+        const professionVal = document.getElementById('profile-profession').value;
         const looksEduVal = document.getElementById('profile-looks-edu').value;
-
-        // Chỉ những ai chọn giá trị "Tinh hoa" mới được cấp Khóa vàng (V-Code)
-        let shouldBeElite = currentMemberCode.startsWith("V") || looksEduVal === "Tinh hoa";
-
+        
         let oldMemberCode = currentMemberCode; 
-        let isCompletelyNewVCode = false; 
-
-        if (shouldBeElite && !currentMemberCode.startsWith("V")) {
-            currentMemberCode = "V" + currentMemberCode.substring(1);
-            clockSecondsLeft = TIME_FREEZE_TINHHOA; 
-        }
+        let isCompletelyNewVCode = false;
 
         // --- VÒNG LẶP KIỂM TRA CHỐNG TRÙNG LẶP MÃ THÀNH VIÊN ---
         let isCodeUnique = false;
@@ -2251,6 +2223,7 @@ if(!uDoc.exists) {
         let expireDateInit = new Date(new Date().getTime() + addTime); 
 
         // ĐÓNG GÓI DỮ LIỆU ĐỂ BẮN LÊN FIREBASE
+        // ĐÓNG GÓI DỮ LIỆU ĐỂ BẮN LÊN FIREBASE
         const profileObj = {
             code: currentMemberCode,
             nickname: document.getElementById('profile-nickname').value,
@@ -2259,6 +2232,7 @@ if(!uDoc.exists) {
             address: document.getElementById('profile-address').value,
             height: document.getElementById('profile-height').value,
             weight: document.getElementById('profile-weight').value,
+            profession: professionVal, // Thêm dòng này để ghi Lĩnh vực lên đám mây
             experience: document.getElementById('profile-experience').value,
             quantity: parseInt(document.getElementById('profile-quantity').value) || 1,
             looksEdu: looksEduVal,
@@ -2267,7 +2241,6 @@ if(!uDoc.exists) {
             images: userBase64Images,
             lat: userLatitude,
             lng: userLongitude,
-            isElite: shouldBeElite,
             points: userPoints,
             expireAt: expireDateInit.toISOString(), 
             updatedAt: new Date().toISOString()
@@ -3645,6 +3618,7 @@ function toggleCam() {
         <div id="modal-partner-album" class="flex justify-center gap-2"></div>
         <div class="bg-rose-50 p-3.5 rounded-2xl border border-rose-200 space-y-2 text-xs text-gray-700">
             <p><strong>Tuổi:</strong> <span id="modal-partner-age">-</span></p>
+            <p><strong>Lĩnh vực:</strong> <span id="modal-partner-profession" class="font-bold text-rose-700">-</span></p>
             <p><strong>Kinh nghiệm:</strong> <span id="modal-partner-exp" class="font-bold text-gray-900">-</span></p>
             <p><strong>Trình độ & Ngoại hình:</strong> <span id="modal-partner-looksedu">-</span></p>
             <p><strong>Giá nhân công:</strong> <span id="modal-partner-price" class="font-black text-emerald-600">-</span></p>
