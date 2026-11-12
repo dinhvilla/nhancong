@@ -324,8 +324,14 @@
                         </select>
                     </div>
                     <div>
-                        <input type="number" id="profile-price" required min="100000" class="w-full px-3 py-3 rounded-xl outline-none bg-white font-black text-rose-700 border border-amber-300" placeholder="Giá nhân công 1 ngày (VNĐ)">
-                    </div>
+                    <select id="filter-price-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
+                        <option value="" disabled selected>Mức giá nhân công 1 ngày</option>
+                        <option value="300000">Dưới 300.000đ/ngày</option>
+                        <option value="500000">Dưới 500.000đ/ngày</option>
+                        <option value="1000000">Dưới 1.000.000đ/ngày</option>
+                        <option value="0">Tất cả mức giá (Thỏa thuận)</option>
+                    </select>
+                </div>
                 </div>
             </div>
 
