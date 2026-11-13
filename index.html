@@ -1492,35 +1492,34 @@
             await firebase.auth().signOut();
         } catch(e) {}
 
-        // Tắt bộ lắng nghe kết nối để ngưng nhận popup
-        if (unsubscribeConnectRequests) {
+        // Kiểm tra an toàn các biến trước khi ra lệnh tắt (Chống sập trình duyệt)
+        if (typeof unsubscribeConnectRequests !== 'undefined' && unsubscribeConnectRequests) {
             unsubscribeConnectRequests();
             unsubscribeConnectRequests = null;
         }
         
-        // Tắt bộ lắng nghe thanh toán (nếu đang chạy)
-        if (paymentListenerUnsubscribe) {
+        if (typeof paymentListenerUnsubscribe !== 'undefined' && paymentListenerUnsubscribe) {
             paymentListenerUnsubscribe();
             paymentListenerUnsubscribe = null;
         }
 
-        // Tắt popup nếu nó đang mở
-        document.getElementById('connect-request-modal').classList.add('hidden');
-        pendingDirectPartner = null;
+        let connectModal = document.getElementById('connect-request-modal');
+        if (connectModal) connectModal.classList.add('hidden');
+        
+        if (typeof pendingDirectPartner !== 'undefined') {
+            pendingDirectPartner = null;
+        }
 
-        // KHÔNG xóa currentMemberCode ở đây để giữ lại phục vụ cho ô nhập liệu
         let savedLastCode = currentMemberCode || localStorage.getItem('last_logged_code');
         
         isUserLoggedIn = false;
         activeChatPartnerCode = null;
-        
         sessionStorage.setItem('is_logged_in', 'false');
         
-        // Cập nhật lại giao diện, giữ lại mã thành viên nhưng XÓA TRẮNG mật khẩu
         if (savedLastCode) {
             document.getElementById('login-code-input').value = savedLastCode;
         }
-        document.getElementById('login-pass-input').value = ""; // Đảm bảo ô mật khẩu luôn trống khi Sign out
+        document.getElementById('login-pass-input').value = ""; 
         
         document.getElementById('user-badge-display').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
@@ -1528,9 +1527,11 @@
         document.getElementById('point-floating-badge').classList.add('hidden');
         
         const authBtn = document.getElementById('auth-btn');
-        authBtn.innerText = "Đăng nhập";
-        authBtn.className = "px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 hover:brightness-105 border border-amber-300 rounded-lg shadow-sm transition";
-        authBtn.onclick = handleLoginClick;
+        if (authBtn) {
+            authBtn.innerText = "Đăng nhập";
+            authBtn.className = "px-3 py-1 text-xs font-bold bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 hover:brightness-105 border border-amber-300 rounded-lg shadow-sm transition";
+            authBtn.onclick = handleLoginClick;
+        }
 
         updateAuthUIState();
         showSection('login-section');
