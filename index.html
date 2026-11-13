@@ -1683,9 +1683,9 @@
         const looksEduVal = document.getElementById('profile-looks-edu').value;
         
         let oldMemberCode = currentMemberCode; 
-
-        // --- VÒNG LẶP KIỂM TRA CHỐNG TRÙNG LẶP MÃ THÀNH VIÊN ---
         let isCodeUnique = false;
+
+        // Vòng lặp kiểm tra mã trùng lặp
         while (!isCodeUnique) {
             try {
                 let checkDoc = await db.collection("users").doc(currentMemberCode).get();
@@ -1702,9 +1702,11 @@
                 isCodeUnique = true; 
             }
         }
-        // ----------------------------------------------------
 
-        // ĐÓNG GÓI DỮ LIỆU ĐỂ BẮN LÊN FIREBASE
+        // Khởi tạo giá trị mặc định cho GPS nếu chưa có
+        let finalLat = typeof userLatitude !== 'undefined' ? userLatitude : 21.0285;
+        let finalLng = typeof userLongitude !== 'undefined' ? userLongitude : 105.8542;
+
         const profileObj = {
             code: currentMemberCode,
             nickname: document.getElementById('profile-nickname').value,
@@ -1720,23 +1722,20 @@
             price: parseInt(document.getElementById('profile-price').value) || 0,
             bio: document.getElementById('bio-input').value,
             images: userBase64Images,
-            lat: userLatitude,
-            lng: userLongitude,
-            points: userPoints,
+            lat: finalLat,
+            lng: finalLng,
+            points: typeof userPoints !== 'undefined' ? userPoints : 0,
             updatedAt: new Date().toISOString()
         };
 
         try {
-            // 1. Chỉ đưa mật khẩu vào Auth nếu là ĐĂNG KÝ MỚI hoặc vừa ĐỔI MÃ
             if (!isUserLoggedIn || oldMemberCode !== currentMemberCode) {
                 const fakeEmail = currentMemberCode + "@seeing.love";
                 await firebase.auth().createUserWithEmailAndPassword(fakeEmail, newPass.trim());
             }
 
-            // 2. Lưu hồ sơ sạch lên Firestore
             await db.collection("users").doc(currentMemberCode).set(profileObj);
 
-            // [ĐỒNG BỘ CHAT BẢO LƯU CHO CA ĐỔI MÃ]
             if (isUserLoggedIn && oldMemberCode !== currentMemberCode) {
                 const matchesSnap = await db.collection("matches").where("members", "array-contains", oldMemberCode).get();
                 const batch = db.batch();
@@ -1747,7 +1746,6 @@
                 });
                 await batch.commit();
                 
-                // Cập nhật giao diện phòng chat hiện tại nếu bạn đang mở dở
                 if (activeChatPartnerCode) {
                     document.getElementById('profile-member-code').innerText = currentMemberCode;
                 }
@@ -1770,7 +1768,6 @@
             authBtn.innerText = "Hồ sơ của tôi";
             authBtn.onclick = () => showSection('profile-section');
             
-            applyMemberSearchPermission();
             updatePointFloatingBadgeUI();
             
             alert(`✅ Đã lưu hồ sơ bảo mật thành công!\nMã thành viên: ${currentMemberCode}`);
