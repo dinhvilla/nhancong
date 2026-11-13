@@ -898,6 +898,34 @@
         const createBtn = document.getElementById('btn-create-new-account');
         if (createBtn) createBtn.classList.toggle('hidden', isUserLoggedIn);
     }
+    let unsubscribeConnectRequests = null;
+    window.pendingRequestId = null; 
+
+    function listenToDirectConnectRequests() {
+        if (unsubscribeConnectRequests) {
+            unsubscribeConnectRequests();
+            unsubscribeConnectRequests = null;
+        }
+
+        if (!currentMemberCode) return;
+
+        unsubscribeConnectRequests = db.collection("connect_requests")
+            .where("targetCode", "==", currentMemberCode)
+            .where("status", "==", "pending")
+            .onSnapshot(snapshot => {
+                snapshot.forEach(doc => {
+                    let data = doc.data();
+                    db.collection("blocks").doc(currentMemberCode + "_" + data.senderCode).get().then(bDoc => {
+                        if (!bDoc.exists) {
+                            pendingDirectPartner = data.senderCode;
+                            window.pendingRequestId = doc.id; 
+                            document.getElementById('connect-request-text').innerText = `Thành viên [${data.senderCode}] muốn kết nối trò chuyện với bạn.`;
+                            document.getElementById('connect-request-modal').classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+    }
 
     function listenToUnreadMessagesBadge() {
         db.collection("matches").where("members", "array-contains", currentMemberCode)
