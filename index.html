@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nhân Công - Kết Nối Việc Làm Thời Vụ</title>
+    <title>Nhân Công - Sàn Việc Làm Thời Vụ</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23e11d48' d='M96 96c0-17.7 14.3-32 32-32h256c17.7 0 32 14.3 32 32v32h96c17.7 0 32 14.3 32 32v288c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96V96zm64 32h192V96H160v32z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,43 +11,34 @@
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <!-- THÊM DÒNG NÀY ĐỂ KÍCH HOẠT AUTH -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <!-- THƯ VIỆN MÃ HÓA ĐẦU CUỐI (CRYPTO JS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <!-- THƯ VIỆN APP CHECK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check-compat.js"></script>
 
     <style>
-        /* Tối ưu hóa font chữ to, rõ ràng và khóa cứng chiều cao màn hình */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #fdf2f8;
             color: #374151;
             margin: 0;
             padding: 0;
-            /* Dùng 100dvh thay cho 100vh để iPhone tự động trừ hao thanh địa chỉ Safari, chống tràn đáy */
             height: 100dvh; 
             width: 100vw;
             overflow: hidden; 
-            font-size: 16px; /* Tăng size chữ mặc định lên 16px cho dễ đọc */
+            font-size: 16px; 
             display: flex;
             flex-direction: column;
         }
-        
-        /* Container chính tự động lấp đầy phần giữa và có thể cuộn độc lập */
         main.app-main-container {
-            width: 100%; max-width: 600px; /* Giới hạn chiều rộng trên bản PC/Tablet để giống mobile */
+            width: 100%; max-width: 600px;
             margin: 0 auto;
             box-sizing: border-box;
-            flex: 1; /* Chiếm phần không gian còn lại giữa Header và Nav */
-            overflow-y: auto; /* Chỉ cho phép cuộn nội dung bên trong vùng này */
+            flex: 1;
+            overflow-y: auto;
             overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Trải nghiệm cuộn mượt trên iOS */
-            padding-bottom: 90px !important; /* Tạo khoảng trống tránh bị đè bởi Bottom Nav */
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 90px !important;
         }
-        
-        /* Tùy chỉnh thanh cuộn cho gọn gàng */
         main.app-main-container::-webkit-scrollbar { width: 5px; }
         main.app-main-container::-webkit-scrollbar-track { background: transparent; }
         main.app-main-container::-webkit-scrollbar-thumb { background: #fecdd3; border-radius: 10px; }
@@ -69,7 +60,6 @@
             font-weight: 600;
             padding: 10px;
         }
-        
         input[type=range] { accent-color: #e11d48; }
         .digital-clock {
             font-family: monospace; letter-spacing: 1px; color: #facc15;
@@ -79,18 +69,6 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-<div id="hearts-container"></div>
-<div id="hard-freeze-overlay" class="fixed inset-0 bg-gray-900/95 backdrop-blur-xl z-[999] hidden flex items-center justify-center p-6 text-center">
-    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-md w-full border-2 border-rose-500 space-y-4">
-        <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-3xl mb-2"><i class="fa-solid fa-snowflake"></i></div>
-        <h2 class="text-xl font-black text-gray-900">Tài Khoản Bị Đóng Băng</h2>
-        <p class="text-sm text-gray-600 font-medium leading-relaxed">Để tiếp tục truy cập dữ liệu và trò chuyện hãy thanh toán hoặc thoát và chấp nhận tài khoản này sẽ bị XÓA.</p>
-        <div class="flex flex-col gap-3 pt-4">
-            <button onclick="openPointTopupModal()" class="w-full py-3.5 bg-amber-500 text-white font-bold rounded-xl shadow hover:bg-amber-600">Nạp Point Mở Khóa</button>
-            <button onclick="executeSelfDestruct()" class="w-full py-3.5 bg-rose-50 text-rose-700 font-bold rounded-xl shadow border border-rose-200 hover:bg-rose-100">Tạo tài khoản mới miễn phí</button>
-        </div>
-    </div>
-</div>
 <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-rose-200">
     <div class="max-w-5xl mx-auto px-4 py-2 flex justify-between items-center">
         <div class="flex items-center cursor-pointer" onclick="goHome()">
@@ -106,9 +84,8 @@
 
             <div class="flex flex-col gap-1 items-end">
                 <button id="auth-btn" onclick="handleLoginClick()" class="px-3 py-1 text-xs font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 rounded-lg shadow-sm transition text-center">Đăng nhập</button>
-                
                 <div id="user-badge-display" class="hidden items-center justify-center px-2 py-0.5 rounded-lg border text-xs bg-rose-50 border-rose-200 shadow-inner">
-                    <span id="nav-member-id" class="font-black text-xs text-rose-700 uppercase">P333ML21-123</span>
+                    <span id="nav-member-id" class="font-black text-xs text-rose-700 uppercase">A123BC-456</span>
                 </div>
             </div>
         </div>
@@ -141,6 +118,7 @@
         </button>
     </div>
 </nav>
+
 <main class="app-main-container px-3 py-6 relative z-10 flex-grow pb-12">
 
     <section id="login-section" class="auth-box bg-white/95 p-6 rounded-3xl shadow-xl border border-rose-200 space-y-5">
@@ -161,7 +139,6 @@
         <div class="text-center pt-1">
             <h3 class="text-sm font-extrabold text-gray-900 mb-1">Đăng nhập Mã Thành Viên</h3>
             <p class="text-xs text-rose-500 font-semibold mb-3">Hệ thống đồng bộ trực tiếp từ đám mây Google</p>
-            
             <button onclick="showCodeLoginForm()" class="inline-flex items-center justify-center gap-2 py-3 px-6 border-2 border-rose-500 rounded-2xl shadow-md bg-rose-50 text-sm font-bold text-rose-700 hover:bg-rose-100 transition">
                 <i class="fa-solid fa-id-card text-base"></i> Mở form Đăng nhập Mã thành viên
             </button>
@@ -176,7 +153,7 @@
         <form onsubmit="handleCodeLogin(event)" class="space-y-4 text-sm">
             <div>
                 <label class="block font-bold text-gray-700 mb-1">Mã thành viên</label>
-                <input type="text" id="login-code-input" name="username" autocomplete="username" required oninput="this.value = this.value.toUpperCase()" class="w-full px-4 py-3 rounded-xl uppercase tracking-wider font-bold text-center text-lg outline-none" placeholder="VD: P333ML21-123">
+                <input type="text" id="login-code-input" name="username" autocomplete="username" required oninput="this.value = this.value.toUpperCase()" class="w-full px-4 py-3 rounded-xl uppercase tracking-wider font-bold text-center text-lg outline-none" placeholder="VD: T333ML-123">
             </div>
             <div>
                 <label class="block font-bold text-gray-700 mb-1">Mật khẩu cá nhân</label>
@@ -199,55 +176,48 @@
         </div>
     </section>
 
-    <!-- MODAL 20 CÂU HỎI THỬ THÁCH NGỮ CẢNH (QUÊN MẬT KHẨU) -->
+    <!-- MODAL 20 CÂU HỎI THỬ THÁCH NGỮ CẢNH -->
     <div id="challenge-recovery-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-lg w-full border-2 border-rose-300 relative text-sm space-y-4 max-h-[90vh] overflow-y-auto">
             <button onclick="closeChallengeRecoveryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
             <div class="text-center border-b pb-3">
-                <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="font-black text-gray-900 text-base">Hệ thống Xác thực Bảo mật Phi tập trung</h3>
+                <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-xl mb-2"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3 class="font-black text-gray-900 text-base">Hệ thống Xác thực Bảo mật</h3>
                 <p class="text-xs text-rose-600 font-bold mt-0.5">Thử thách Nhận thức Ngữ cảnh</p>
             </div>
-
             <div id="challenge-step-1" class="space-y-3">
                 <label class="block font-bold text-gray-700">Nhập Mã thành viên cần khôi phục:</label>
-                <input type="text" id="recovery-target-code" oninput="this.value = this.value.toUpperCase()" placeholder="VD: P333ML21-123" class="w-full px-4 py-3 rounded-xl uppercase font-bold text-center text-base outline-none">
-                <button onclick="startChallengeQuiz()" class="w-full py-3 bg-rose-600 text-white font-bold rounded-xl shadow hover:bg-rose-700 transition">Bắt đầu bài kiểm tra nhận thức</button>
+                <input type="text" id="recovery-target-code" oninput="this.value = this.value.toUpperCase()" placeholder="VD: T333ML-123" class="w-full px-4 py-3 rounded-xl uppercase font-bold text-center text-base outline-none">
+                <button onclick="startChallengeQuiz()" class="w-full py-3 bg-rose-600 text-white font-bold rounded-xl shadow hover:bg-rose-700 transition">Bắt đầu bài kiểm tra</button>
             </div>
-
             <div id="challenge-step-2" class="hidden space-y-4">
                 <div class="flex justify-between items-center text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200">
                     <span id="quiz-progress-text">Câu hỏi 1 / 20</span>
                     <span>Yêu cầu đúng từ 17/20 câu</span>
                 </div>
-                <div id="quiz-question-box" class="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-gray-900 font-bold text-sm min-h-[80px] flex items-center justify-center text-center">
-                    Đang tải câu hỏi...
-                </div>
+                <div id="quiz-question-box" class="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-gray-900 font-bold text-sm min-h-[80px] flex items-center justify-center text-center">Đang tải câu hỏi...</div>
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="answerChallengeQuiz(true)" class="py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow transition text-sm">Đúng (Yes)</button>
                     <button onclick="answerChallengeQuiz(false)" class="py-3 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-xl shadow transition text-sm">Sai (No)</button>
                 </div>
             </div>
-
             <div id="challenge-step-3" class="hidden text-center space-y-3 py-4">
                 <div id="recovery-result-icon" class="w-14 h-14 rounded-full flex items-center justify-center mx-auto text-2xl shadow"></div>
                 <h4 id="recovery-result-title" class="font-black text-base text-gray-900">Kết quả xác thực</h4>
                 <p id="recovery-result-desc" class="text-xs text-gray-600 leading-relaxed"></p>
-                <button onclick="closeChallengeRecoveryModal()" class="px-6 py-2.5 bg-rose-600 text-white font-bold rounded-xl text-xs shadow">Đóng cửa sổ</button>
+                <button onclick="closeChallengeRecoveryModal()" class="px-6 py-2.5 bg-rose-600 text-white font-bold rounded-xl text-xs shadow">Đóng</button>
             </div>
         </div>
     </div>
 
+    <!-- KHU VỰC HỒ SƠ -->
     <section id="profile-section" class="hidden bg-white/95 p-6 rounded-3xl shadow-xl border border-rose-200">
         <div class="flex justify-between items-start mb-5 border-b border-rose-100 pb-3">
             <div>
                 <h2 class="text-xl font-bold text-gray-900 mb-0.5">Hoàn thiện hồ sơ</h2>
-                <p class="text-xs text-gray-500">Mã thành viên: <strong id="profile-member-code" class="text-rose-600 font-black">P333ML21-123</strong></p>
+                <p class="text-xs text-gray-500">Mã thành viên: <strong id="profile-member-code" class="text-rose-600 font-black">A123BC-456</strong></p>
             </div>
         </div>
-
         <div class="flex justify-center items-center mb-5">
             <div class="flex gap-2">
                 <span class="w-3.5 h-3.5 rounded-full bg-rose-600 profile-dot" id="dot-1"></span>
@@ -258,12 +228,8 @@
         </div>
 
         <form onsubmit="saveProfile(event)" id="profile-slides-form" class="space-y-4 text-sm">
-            
-            <!-- Slide 1: Thông tin cơ bản -->
             <div class="profile-slide space-y-3" data-slide="1">
-                <div>
-                    <input type="text" id="profile-nickname" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Tên cá nhân/Tên đơn vị (Bắt buộc)">
-                </div>
+                <div><input type="text" id="profile-nickname" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Tên cá nhân/Tên đơn vị (Bắt buộc)"></div>
                 <div>
                     <select id="profile-gender" required class="w-full px-3 py-3 rounded-xl outline-none">
                         <option value="" disabled selected>Chọn giới tính</option>
@@ -278,15 +244,11 @@
                 </div>
             </div>
 
-            <!-- Slide 2: Thể chất & Kinh nghiệm -->
-            <!-- Slide 2: Thể chất & Kinh nghiệm -->
             <div class="profile-slide hidden space-y-3" data-slide="2">
                 <div class="flex gap-2">
                     <input type="number" id="profile-height" required min="130" max="220" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Chiều cao (cm)">
                     <input type="number" id="profile-weight" required min="35" max="150" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Cân nặng (kg)">
                 </div>
-                
-                <!-- Ô LĨNH VỰC MỚI ĐƯỢC BỔ SUNG THÊM -->
                 <div>
                     <select id="profile-profession" required class="w-full px-3 py-3 rounded-xl outline-none bg-white font-semibold text-rose-900 border border-rose-200">
                         <option value="" disabled selected>Lĩnh vực chuyên môn</option>
@@ -302,16 +264,10 @@
                         <option value="Khác">Khác...</option>
                     </select>
                 </div>
-
-                <div>
-                    <input type="text" id="profile-experience" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Kinh nghiệm & Tay nghề (VD: 5 năm thợ mộc)">
-                </div>
-                <div>
-                    <input type="number" id="profile-quantity" required min="1" max="50" value="1" class="w-full px-3 py-3 rounded-xl outline-none font-bold text-rose-700" placeholder="Số lượng (ghi 1 nếu bản thân hoặc số thực tế nếu là nhóm)">
-                </div>
+                <div><input type="text" id="profile-experience" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Kinh nghiệm & Tay nghề (VD: 5 năm thợ mộc)"></div>
+                <div><input type="number" id="profile-quantity" required min="1" max="50" value="1" class="w-full px-3 py-3 rounded-xl outline-none font-bold text-rose-700" placeholder="Số lượng (ghi 1 nếu bản thân hoặc số thực tế nếu là nhóm)"></div>
             </div>
 
-            <!-- Slide 3: Phân loại & Báo giá -->
             <div class="profile-slide hidden space-y-3" data-slide="3">
                 <div class="bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 p-3.5 rounded-2xl border-2 border-amber-300 space-y-2.5">
                     <div>
@@ -320,22 +276,16 @@
                             <option value="Lao động phổ thông">Lao động phổ thông</option>
                             <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
                             <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
-                            <option value="Tay nghề tốt & trình độ cao ">Tay nghề tốt & trình độ cao</option>
+                            <option value="Tay nghề tốt & trình độ cao">Tay nghề tốt & trình độ cao</option>
+                            <option value="Chuyên gia cao cấp & Hình thức đẹp">Chuyên gia cao cấp & Hình thức đẹp</option>
                         </select>
                     </div>
                     <div>
-                    <select id="filter-price-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
-                        <option value="" disabled selected>Mức giá nhân công 1 ngày</option>
-                        <option value="300000">Dưới 300.000đ/ngày</option>
-                        <option value="500000">Dưới 500.000đ/ngày</option>
-                        <option value="1000000">Dưới 1.000.000đ/ngày</option>
-                        <option value="0">Tất cả mức giá (Thỏa thuận)</option>
-                    </select>
-                </div>
+                        <input type="number" id="profile-price" class="w-full px-3 py-3 rounded-xl outline-none bg-white font-black text-rose-700 border border-amber-300" placeholder="Giá nhân công 1 ngày (Bỏ trống nếu thỏa thuận)">
+                    </div>
                 </div>
             </div>
 
-            <!-- Slide 4: Giới thiệu & Ảnh -->
             <div class="profile-slide hidden space-y-3" data-slide="4">
                 <div>
                     <div class="flex justify-between items-center mb-1">
@@ -344,7 +294,6 @@
                     </div>
                     <textarea id="bio-input" maxlength="500" oninput="updateBioCounter()" rows="2" class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Mô tả chi tiết công việc có thể làm..."></textarea>
                 </div>
-
                 <div class="bg-rose-50/70 p-3.5 rounded-2xl border border-rose-200 space-y-2">
                     <div class="flex justify-between items-center">
                         <label class="font-extrabold text-rose-900 flex items-center gap-1.5 text-xs">
@@ -355,7 +304,6 @@
                     <input type="file" id="profile-images-file" accept="image/*" multiple onchange="handleMultipleImagesUpload(event)" class="w-full text-xs file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-rose-600 file:text-white hover:file:bg-rose-700 cursor-pointer bg-white p-2.5 rounded-xl border border-rose-200">
                     <div id="uploaded-thumbnails-preview" class="flex gap-2 pt-1"></div>
                 </div>
-
                 <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-300 space-y-2">
                     <input type="password" id="register-pass" class="password-yellow-bg w-full px-3 py-3 rounded-xl text-base outline-none font-bold shadow-inner" placeholder="Mật khẩu tài khoản (Tối thiểu 6 ký tự)">
                     <p class="text-xs font-bold text-amber-800 italic">💡 Hãy đặt mật khẩu để lưu đăng nhập tự động.</p>
@@ -363,11 +311,11 @@
             </div>
 
             <div class="flex justify-between pt-3 border-t border-rose-100">
-                <button type="button" id="prev-profile-btn" onclick="changeProfileSlide(-1)" class="hidden px-4 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition shadow text-sm">
+                <button type="button" id="prev-profile-btn" onclick="changeFilterSlide(-1)" class="hidden px-4 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition shadow text-sm">
                     <i class="fa-solid fa-arrow-left mr-1"></i> Quay lại
                 </button>
                 <div class="ml-auto flex gap-2">
-                    <button type="button" id="next-profile-btn" onclick="changeProfileSlide(1)" class="px-5 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition shadow text-sm">
+                    <button type="button" id="next-profile-btn" onclick="changeFilterSlide(1)" class="px-5 py-2.5 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition shadow text-sm">
                         Tiếp theo <i class="fa-solid fa-arrow-right ml-1"></i>
                     </button>
                     <button type="submit" id="submit-profile-btn" class="hidden px-6 py-2.5 bg-amber-500 text-gray-950 font-black rounded-xl hover:bg-amber-400 transition shadow-lg text-sm">
@@ -377,23 +325,15 @@
             </div>
         </form>
     </section>
-<section id="search-section" class="hidden space-y-5 pb-20">
-        <div class="bg-white/95 p-4 rounded-3xl shadow-lg border-2 border-rose-200 space-y-2 text-sm">
-            <div class="flex gap-2">
-                <input type="text" id="direct-connect-code" placeholder="Nhập mã để trò chuyện..." oninput="this.value = this.value.toUpperCase()" class="flex-1 px-3.5 py-3 rounded-xl outline-none uppercase font-bold text-sm">
-                <button onclick="requestDirectConnect()" class="px-5 py-3 bg-rose-600 text-white font-bold rounded-xl shadow hover:bg-rose-700 transition text-xs">Kết nối</button>
-            </div>
-        </div>
 
-        <!-- KHU VỰC TÌM KIẾM NHÂN CÔNG DUY NHẤT -->
+    <!-- KHU VỰC TÌM KIẾM NHÂN CÔNG DUY NHẤT -->
+    <section id="search-section" class="hidden space-y-5 pb-20">
         <div id="main-search-wrapper" class="bg-white/95 p-5 rounded-3xl shadow-lg border-2 border-rose-200 space-y-3 text-sm">
             <div class="pb-2.5 border-b border-rose-100 flex justify-between items-center">
                 <h2 class="font-black text-gray-900 flex items-center gap-1.5 text-base">
                     <i class="fa-solid fa-users text-rose-600"></i> Tìm kiếm Nhân công
                 </h2>
             </div>
-
-            <!-- Slide 1: Cơ bản -->
             <div class="filter-slide-p space-y-3" data-filter-slide="1">
                 <div class="p-3.5 bg-rose-50/60 rounded-2xl border border-rose-200 space-y-2">
                     <div class="flex justify-between items-center">
@@ -423,18 +363,33 @@
                     </select>
                 </div>
             </div>
-
-            <!-- Slide 2: Chuyên môn & Giá -->
             <div class="filter-slide-p hidden space-y-3" data-filter-slide="2">
                 <div>
+                    <select id="filter-profession-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
+                        <option value="" disabled selected>Lĩnh vực chuyên môn</option>
+                        <option value="Tất cả/Bất kể">Tất cả/Bất kể</option>
+                        <option value="Lao động phổ thông, phụ việc">Lao động phổ thông, phụ việc</option>
+                        <option value="Lái xe/Vận tải/Giao hàng">Lái xe/Vận tải/Giao hàng</option>
+                        <option value="Trông trẻ, chăm sóc cao tuổi">Trông trẻ, chăm sóc người cao tuổi</option>
+                        <option value="Xây dựng">Xây dựng (Thợ xây, nề, sơn, thạch cao...)</option>
+                        <option value="Cơ khí">Cơ khí (Thợ sắt, hàn, tiện, nhôm kính...)</option>
+                        <option value="Điện/Nước/Gia dụng">Điện/Nước/Gia dụng</option>
+                        <option value="Hành chính/Văn phòng/Lễ tân">Hành chính/Văn phòng/Lễ tân</option>
+                        <option value="Kế toán sổ sách">Kế toán sổ sách</option>
+                        <option value="Bán hàng/Kinh doanh">Bán hàng/Kinh doanh</option>
+                        <option value="Khác">Khác...</option>
+                    </select>
+                </div>
+                <div>
                     <select id="filter-looks-edu-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
-                            <option value="" disabled selected>Trình độ & Ngoại hình</option>
-                            <option value="Tất cả/Bất kể">Tất cả/Bất kể</option>
-                            <option value="Lao động phổ thông">Lao động phổ thông</option>
-                            <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
-                            <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
-                            <option value="Tay nghề tốt & trình độ cao">Tay nghề tốt & trình độ cao</option>
-                   </select>
+                        <option value="" disabled selected>Trình độ & Ngoại hình</option>
+                        <option value="Tất cả/Bất kể">Tất cả/Bất kể</option>
+                        <option value="Lao động phổ thông">Lao động phổ thông</option>
+                        <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
+                        <option value="Tay nghề khá & trình độ căn bản">Tay nghề khá & trình độ căn bản</option>
+                        <option value="Tay nghề tốt & trình độ cao">Tay nghề tốt & trình độ cao</option>
+                        <option value="Chuyên gia cao cấp & Hình thức đẹp">Chuyên gia cao cấp & Hình thức đẹp</option>
+                    </select>
                 </div>
                 <div>
                     <select id="filter-price-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white">
@@ -449,11 +404,9 @@
                     <input type="text" id="filter-exp-p" class="w-full p-3 rounded-xl border border-rose-200 bg-white outline-none" placeholder="Từ khóa tay nghề (VD: thợ xây, kế toán...)">
                 </div>
             </div>
-
             <div class="flex justify-between items-center pt-2 border-t border-rose-100">
                 <button type="button" id="prev-filter-p-btn" onclick="changeFilterSlide('p', -1)" class="hidden px-4 py-2 bg-rose-600 text-white font-bold rounded-xl shadow text-xs">Quay lại</button>
                 <button type="button" id="next-filter-p-btn" onclick="changeFilterSlide('p', 1)" class="px-5 py-2 bg-rose-600 text-white font-bold rounded-xl ml-auto shadow text-xs">Tiếp theo</button>
-                <!-- Nút Tìm kiếm đã gắn cảnh báo trừ phí Point -->
                 <button type="button" id="search-filter-p-btn" onclick="executeSearchCandidates()" class="hidden px-6 py-2.5 bg-rose-600 text-white font-extrabold rounded-xl ml-auto shadow text-xs"><i class="fa-solid fa-coins text-yellow-300 mr-1"></i> Tìm nhân công (2 Point)</button>
             </div>
         </div>
@@ -466,68 +419,23 @@
         </div>
     </section>
 
+    <!-- HỘP THƯ -->
     <section id="chat-list-section" class="hidden space-y-4">
         <div class="bg-white/95 p-5 rounded-3xl shadow-xl border border-rose-200">
             <div class="flex justify-between items-center mb-4 border-b border-rose-100 pb-3">
             <h2 class="text-base font-black text-gray-900 flex items-center gap-2">
                 <i class="fa-solid fa-comments text-rose-600"></i> Hộp thư
             </h2>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-xl border border-rose-200">Live</span>
-                <button onclick="openCreateGroupModal()" class="px-3 py-1.5 bg-amber-500 text-white font-bold rounded-xl shadow-sm hover:bg-amber-600 text-xs flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-users"></i> Tạo Nhóm
-                </button>
-            </div>
         </div>
             <div id="chat-conversations-container" class="space-y-3"></div>
         </div>
     </section>
 
-    <!-- KHUNG TRÒ CHUYỆN THU LÙN ~2CM (75vh) & BẢO MẬT PIN LẬP TỨC KHI RỜI ĐI -->
+    <!-- PHÒNG CHAT 1-1 -->
     <section id="chat-room-section" class="hidden space-y-2">
         <div class="bg-white/95 p-3 rounded-3xl shadow-xl border border-rose-200 flex flex-col relative" style="height: 75vh;">
-    <!-- 2. MÀN HÌNH CUỘC GỌI TRỰC TIẾP (ACTIVE CALL) -->
-            <div id="active-call-screen" class="absolute inset-0 bg-gray-950 hidden flex-col rounded-3xl overflow-hidden" style="z-index: 50;">
-                <!-- Khu vực hiển thị Video -->
-                <div class="relative flex-1 bg-black overflow-hidden flex items-center justify-center">
-                    <!-- Khung Avatar ẩn (Sẽ hiện nếu là Gọi Thoại hoặc bị tắt Cam) -->
-                    <div id="audio-only-avatar" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-0">
-                         <div class="w-32 h-32 bg-gray-800 rounded-full flex items-center justify-center text-6xl text-gray-500 shadow-xl mb-4">
-                             <i class="fa-solid fa-user"></i>
-                         </div>
-                         <p id="active-call-partner-name" class="text-white font-black text-xl">Thành viên</p>
-                         <p id="active-call-duration" class="text-emerald-400 font-bold mt-2">00:00</p>
-                    </div>
-            
-                    <!-- Video của đối tác (Màn hình lớn) -->
-                    <video id="remote-video" class="w-full h-full object-cover z-10 hidden" autoplay playsinline></video>
-                    
-                    <!-- Video của bản thân (Góc nhỏ) -->
-                    <video id="local-video" class="absolute top-4 right-4 w-28 h-40 object-cover bg-gray-800 rounded-xl border-2 border-gray-600 shadow-xl z-20 hidden" autoplay playsinline muted></video>
-            
-                    <!-- Trạng thái kết nối (Đang gọi, Đang kết nối...) -->
-                    <div id="call-status-overlay" class="absolute inset-0 flex items-center justify-center bg-black/60 z-30">
-                        <p id="call-status-text" class="text-white font-bold text-lg animate-pulse">Đang kết nối...</p>
-                    </div>
-                </div>
-            
-                <!-- Thanh điều khiển cuộc gọi dưới cùng -->
-                <div class="h-24 bg-gray-900 shrink-0 flex items-center justify-center gap-8 px-4" style="padding-bottom: env(safe-area-inset-bottom);">
-                    <button id="btn-toggle-mic" onclick="toggleMic()" class="w-12 h-12 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition flex items-center justify-center text-xl">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
-                    <button onclick="endCall()" class="w-16 h-16 rounded-full bg-rose-600 text-white shadow-[0_0_15px_rgba(225,29,72,0.4)] hover:bg-rose-700 transition flex items-center justify-center text-3xl">
-                        <i class="fa-solid fa-phone-slash"></i>
-                    </button>
-                    <button id="btn-toggle-cam" onclick="toggleCam()" class="w-12 h-12 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition flex items-center justify-center text-xl">
-                        <i class="fa-solid fa-video"></i>
-                    </button>
-                </div>
-            </div>
-
             <div id="chat-pin-lock-overlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-md z-30 rounded-3xl flex flex-col items-center justify-center p-6 text-center space-y-3">
-            
-            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-xl shadow">
+                <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-xl shadow">
                     <i class="fa-solid fa-lock"></i>
                 </div>
                 <h3 class="font-black text-base text-gray-900">Cuộc trò chuyện đã bị khóa bảo mật</h3>
@@ -546,14 +454,6 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <!-- Các nút Gọi 1-1 (Mặc định ẩn, chỉ bật lên khi ở phòng 1-1) -->
-                    <button id="btn-audio-call" onclick="initiateCall('audio')" class="hidden p-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold hover:bg-emerald-100 transition shadow-sm" title="Cuộc gọi Thoại">
-                        <i class="fa-solid fa-phone text-base"></i>
-                    </button>
-                    <button id="btn-video-call" onclick="initiateCall('video')" class="hidden p-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold hover:bg-emerald-100 transition shadow-sm" title="Cuộc gọi Video">
-                        <i class="fa-solid fa-video text-base"></i>
-                    </button>
-
                     <div id="chat-pin-widget-container"></div>
                     <div class="relative">
                         <button onclick="toggleChatOptionsMenu()" class="p-2 bg-rose-50 text-rose-700 rounded-xl font-bold hover:bg-rose-100 transition"><i class="fa-solid fa-ellipsis-vertical text-base"></i></button>
@@ -579,6 +479,7 @@
             </div>
         </div>
     </section>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyA4RKQu7E63dIw6Y8O6UQq-WJqbWaeNP9A",
@@ -589,74 +490,39 @@
         appId: "1:969946122823:web:1e32b7085f72f568c7f62"
     };
     firebase.initializeApp(firebaseConfig);
-    
-    // --- KÍCH HOẠT LỚP KHIÊN APP CHECK ENTERPRISE ---
     const appCheck = firebase.appCheck();
     appCheck.activate(
         new firebase.appCheck.ReCaptchaEnterpriseProvider('6Ldx_RMuAAAAALKC7vupgCb8aV8dD-1ds09xRl96'),
-        true // Đặt true để tự động làm mới token bảo mật
+        true
     );
-    // -------------------------------------------------
 
     const db = firebase.firestore();
-    // Ép Firebase Auth tự động Sign Out khi đóng tab/trình duyệt
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
     
     function getCoreMatchId(code1, code2) { return [code1.substring(1), code2.substring(1)].sort().join("_"); }
 
-    // Hằng số phí thành viên (dễ dàng thay đổi sau này chỉ tại đây)
-    // Hằng số phí thành viên & giá gói (dễ dàng thay đổi sau này chỉ tại đây)
-    const FEE_PHOTHONG = 2; 
-    const FEE_TINHHOA = 50; 
-    const PRICE_ELITE_PACK = 1500000;
-    const PRICE_HIDE_PACK = 10000000;
-    const TIME_FREEZE_PHOTHONG = 180; // 3 phút báo động đỏ (tính bằng giây)
-    const TIME_FREEZE_TINHHOA = 180;  // 3 phút báo động đỏ (tính bằng giây)
-
-    // BỘ BIẾN SỐ THỜI GIAN CHU KỲ (Tính bằng mili-giây)
-    const TIME_ON1_P = 43200000;        // (ON1 của P) - Đổi thành 12 giờ khi chạy thật
-    const TIME_ON2_P = 600000;         //  (ON2 ân hạn của P) - Đổi thành (10p) khi chạy thật
-    const TIME_ON_V_INIT = 600000;    // 10 phút (Mã V vừa tạo)
-    const TIME_ON_V_REGULAR = 86400000; // 24 giờ (Mã V nạp tiền bình thường)
-
     const siteContents = {
         mission: { title: "Sử dụng an toàn & Miễn trừ", body: "Hệ thống cung cấp dịch vụ cho người đủ 18 tuổi trở lên. Người sử dụng dịch vụ nhắn tin trò chuyện vào mục đích tìm lao động hoặc việc làm phải tuân thủ pháp luật nước sở tại." },
         privacy: { title: "Chính sách bảo mật thông tin", body: "Mọi thông tin về nội dung cuộc trò chuyện, mật khẩu tài khoản cá nhân đều được mã hóa đầu cuối an toàn trên đám mây Google. Hệ thống không yêu cầu số điện thoại, email hoặc tài khoản mạng xã hội khác của thành viên." },
-        guide: { title: "Hướng dẫn sử dụng", body: "Hệ thống vận hành tự động không sử dụng bộ phận chăm sóc khách hàng truyền thống. Tài khoản được cấp là mã thành viên và mật khẩu. Hãy ghi nhớ chúng. Khi quên mật khẩu và đăng nhập thất bại hãy sử dụng xác thực ngữ cảnh nhận thức để khôi phục tài khoản. Trong trường hợp thất bại, hãy tạo lại tài khoản mới hoàn toàn miễn phí. Hệ thống không sử dụng cơ chế cấp lại mật khẩu qua bất kỳ hình thức xác thực cá nhân nào." }
+        guide: { title: "Hướng dẫn sử dụng", body: "Hệ thống vận hành tự động không sử dụng bộ phận chăm sóc khách hàng truyền thống. Tài khoản được cấp là mã thành viên và mật khẩu. Hãy ghi nhớ chúng. Khi quên mật khẩu và đăng nhập thất bại hãy sử dụng xác thực ngữ cảnh nhận thức để khôi phục tài khoản. Trong trường hợp thất bại, hãy tạo lại tài khoản mới hoàn toàn miễn phí." }
     };
 
     const BANK_ID = "MB"; 
     const ACCOUNT_NO = "0917719989";
     const ACCOUNT_NAME = "NGUYEN XUAN DINH";
-    const PINGPONG_IBAN = "00395823000189272";
 
-    let currentCalculatedAmount = 1500000;
     let currentProfileSlide = 1;
     let currentFilterSlideP = 1;
-    let currentFilterSlideV = 1;
-    let eliteTimer = null;
     let currentMemberCode = "";
-    let pendingEliteCode = ""; 
     let isUserLoggedIn = false;
-    let isEliteMember = false;
     let activeChatPartnerCode = null;
     let activePartnerFullData = {};
-    let activeGroupId = null;       // Lưu ID nhóm khi đang mở chat nhóm
-    let activeGroupFullData = {};   // Lưu dữ liệu của nhóm đang mở
-    let userBase64Images = []; // Tối đa 3 ảnh
-
+    let userBase64Images = []; 
     let userLatitude = 21.0285;
     let userLongitude = 105.8542;
-    let pendingDirectPartner = null;
     let chatActivityTimer = null;
-
-    let userPoints = FEE_PHOTHONG;
-    let clockSecondsLeft = TIME_FREEZE_PHOTHONG;
-    let systemClockInterval = null;
-    let freeMarketUsdRate = 25400; // Tỷ giá thị trường tự do
+    let userPoints = 0; // Mặc định tạo tài khoản có 0 điểm
     let topupAutoCloseTimer = null;
-
-    // Biến câu hỏi khôi phục mật khẩu nhận thức ngữ cảnh
     let quizActiveData = null;
     let quizQuestionsList = [];
     let quizCurrentIndex = 0;
@@ -676,23 +542,23 @@
                 (position) => {
                     userLatitude = position.coords.latitude;
                     userLongitude = position.coords.longitude;
-                    const gpsText = `📍 GPS Tọa độ thực: ${userLatitude.toFixed(3)}, ${userLongitude.toFixed(3)}`;
-                    document.getElementById('gps-status-phothong').innerText = gpsText;
-                    document.getElementById('gps-status-tinhhoa').innerText = gpsText;
                 },
                 () => {}
             );
         }
     }
 
-    function generateUniqueMemberCode(isVip = false) {
+    function generateUniqueMemberCode() {
         const safeChars = "BCDGHKLMNPQTUVY"; 
         const safeDigits = "123456789";        
-        let prefix = isVip ? "V" : "P";
+        
+        let prefix = safeChars.charAt(Math.floor(Math.random() * safeChars.length));
         let numbers1 = "", letters = "", suffix = "";
+        
         for (let i = 0; i < 3; i++) numbers1 += safeDigits.charAt(Math.floor(Math.random() * safeDigits.length));
         for (let i = 0; i < 2; i++) letters += safeChars.charAt(Math.floor(Math.random() * safeChars.length));
         for (let i = 0; i < 3; i++) suffix += safeDigits.charAt(Math.floor(Math.random() * safeDigits.length));
+        
         return `${prefix}${numbers1}${letters}-${suffix}`;
     }
 
@@ -700,17 +566,11 @@
         const badge = document.getElementById('user-badge-display');
         const idText = document.getElementById('nav-member-id');
         idText.innerText = code;
-        if (code.startsWith("V")) {
-            badge.className = "hidden items-center gap-1 px-2.5 py-1 rounded-lg border text-xs bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-200 border-amber-300 shadow-sm";
-            idText.className = "font-black text-amber-900";
-        } else {
-            badge.className = "hidden items-center gap-1 px-2.5 py-1 rounded-lg border text-xs bg-rose-50 border-rose-200";
-            idText.className = "font-black text-rose-700";
-        }
+        badge.className = "hidden items-center gap-1 px-2.5 py-1 rounded-lg border text-xs bg-rose-50 border-rose-200";
+        idText.className = "font-black text-rose-700";
     }
 
-   let userManuallyClosedClock = false; // Biến cờ ghi nhớ trạng thái đóng đồng hồ
-
+    let userManuallyClosedClock = false; 
 
     function closePointBadge() {
         document.getElementById('point-floating-badge').classList.add('hidden');
@@ -721,20 +581,12 @@
         document.getElementById('badge-point-num').innerText = userPoints;
         let badgeElem = document.getElementById('point-floating-badge');
         
-        // Luôn hiện ví Point trừ phi người dùng tự bấm dấu X tắt đi hoặc đang trong phòng chat
         if (isUserLoggedIn && !activeChatPartnerCode && !userManuallyClosedClock) {
             badgeElem.classList.remove('hidden');
         }
     }
 
-    function startSystemClockTicker() {
-        // Đã tháo gỡ hoàn toàn hệ thống đếm ngược đóng băng của Seeing Love.
-        // Dự án Nhân Công sử dụng mô hình "Pay-per-use" (Trừ point theo lượt bấm).
-        // Hàm này được giữ lại dưới dạng rỗng để các đoạn code cũ gọi đến nó không bị báo lỗi.
-    }
-
-    // Modal Nạp Point với nút đóng (x) ở lề trái, tự động đóng sau 60s và nền vàng kim
-       function openPointTopupModal() {
+    function openPointTopupModal() {
         let existingModal = document.getElementById('point-topup-modal');
         if (existingModal) existingModal.remove();
 
@@ -746,23 +598,14 @@
                     <i class="fa-solid fa-coins"></i>
                 </div>
                 <h3 class="font-black text-gray-900 text-base">Nạp Point tài khoản</h3>
-                <div class="flex justify-center gap-2">
-                    <button onclick="switchTopupCurrency('VND')" id="btn-curr-vnd" class="px-3 py-1 bg-amber-500 text-white font-bold rounded-lg text-xs">VNĐ (VietQR)</button>
-                    <button onclick="switchTopupCurrency('USD')" id="btn-curr-usd" class="px-3 py-1 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs">USD (PingPong)</button>
-                </div>
-                <div id="topup-vnd-box" class="space-y-2 text-left text-xs">
+                
+                <div class="space-y-2 text-left text-xs">
                     <select id="topup-point-amount" onchange="updateTopupQR()" class="w-full p-3 rounded-xl border border-amber-300 bg-amber-50 font-bold text-amber-950">
-                        <option value="2">Nạp 2 Points (Phổ thông/12 giờ - 2.000đ)</option>
-                        <option value="50">Nạp 50 Points (Tinh hoa/24 giờ - 50.000đ)</option>
+                        <option value="20">Nạp 20 Points (20.000đ)</option>
+                        <option value="50">Nạp 50 Points (50.000đ)</option>
                         <option value="100">Nạp 100 Points (100.000đ)</option>
-                        <option value="1500">Nạp 1.500 Points (1.500.000đ)</option>
-                        <option value="10000">Nạp 10.000 Points (10.000.000đ)</option>
+                        <option value="500">Nạp 500 Points (500.000đ)</option>
                     </select>
-                </div>
-                <div id="topup-usd-box" class="hidden space-y-2 text-left text-xs">
-                    <label class="font-bold text-amber-900">Top-up Account Points</label>
-                    <input type="number" id="topup-usd-input" min="1" value="2" oninput="updatePingPongUSDQR()" class="w-full p-3 rounded-xl border border-amber-300 bg-amber-50 font-bold text-amber-950" placeholder="Enter USD amount...">
-                    <p class="text-[11px] text-gray-500" id="usd-converted-hint">Free market rate (~25.400đ/USD)</p>
                 </div>
                 <div class="p-2 bg-white rounded-2xl border-2 border-amber-200 inline-block">
                     <img id="topup-vietqr-img" src="" alt="QR Code" class="w-40 h-40 object-contain rounded-xl">
@@ -774,16 +617,15 @@
                 <div class="p-3 bg-amber-50 rounded-2xl border border-amber-300 text-center space-y-1">
                     <div class="flex items-center justify-center gap-2 text-amber-900 font-bold text-xs">
                         <i class="fa-solid fa-shield-halved text-amber-600 text-sm"></i>
-                        <span>Thanh toán để nạp points</span>
+                        <span>Thanh toán tự động qua SePay</span>
                     </div>
                     <p class="text-[10px] text-gray-500">Hệ thống ghi nhận giao dịch chính xác qua nội dung chuyển khoản.</p>
                 </div>
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        switchTopupCurrency('VND');
-
-        // KÍCH HOẠT LẮNG NGHE TỰ ĐỘNG WEBHOOK KHI MỞ BẢNG NẠP
+        
+        updateTopupQR();
         watchUserPointsForPayment(currentMemberCode, userPoints);
 
         if (topupAutoCloseTimer) clearTimeout(topupAutoCloseTimer);
@@ -794,39 +636,6 @@
         if (topupAutoCloseTimer) clearTimeout(topupAutoCloseTimer);
         let m = document.getElementById('point-topup-modal');
         if (m) m.remove();
-    }
-
-    function switchTopupCurrency(curr) {
-        let btnConfirm = document.querySelector('#point-topup-modal button:last-child');
-        let qrContainer = document.getElementById('topup-vietqr-img').parentElement;
-
-        if (curr === 'VND') {
-            document.getElementById('btn-curr-vnd').className = "px-3 py-1 bg-amber-500 text-white font-bold rounded-lg text-xs";
-            document.getElementById('btn-curr-usd').className = "px-3 py-1 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs";
-            document.getElementById('topup-vnd-box').classList.remove('hidden');
-            document.getElementById('topup-usd-box').classList.add('hidden');
-            qrContainer.classList.remove('hidden'); 
-            // Đổi chữ nút xác nhận bên dưới cùng
-            if(btnConfirm) btnConfirm.innerHTML = '<i class="fa-solid fa-circle-check"></i> Đã thanh toán. Cộng Point ngay';
-            
-            // Trả lại tên đúng cho 2 nút tab
-            document.getElementById('btn-curr-vnd').innerText = 'VNĐ (VietQR)';
-            document.getElementById('btn-curr-usd').innerText = 'USD (PingPong)';
-            updateTopupQR();
-        } else {
-            document.getElementById('btn-curr-usd').className = "px-3 py-1 bg-amber-500 text-white font-bold rounded-lg text-xs";
-            document.getElementById('btn-curr-vnd').className = "px-3 py-1 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs";
-            document.getElementById('topup-usd-box').classList.remove('hidden');
-            document.getElementById('topup-vnd-box').classList.add('hidden');
-            qrContainer.classList.add('hidden');
-            // Đổi chữ nút xác nhận bên dưới cùng sang tiếng Anh
-            if(btnConfirm) btnConfirm.innerHTML = '<i class="fa-solid fa-circle-check"></i> Payment Completed (Add Points)';
-            
-            // Trả lại tên đúng cho 2 nút tab
-            document.getElementById('btn-curr-vnd').innerText = 'VNĐ (VietQR)';
-            document.getElementById('btn-curr-usd').innerText = 'USD (PingPong)';
-            updatePingPongUSDQR();
-        }
     }
 
     function copyToClipboard(text, btnElem) {
@@ -843,7 +652,7 @@
         let memo = currentMemberCode + "P" + pts;
         let qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${amount}&addInfo=${memo}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
         document.getElementById('topup-vietqr-img').src = qrUrl;
-        document.getElementById('download-qr-link').href = qrUrl; // Gắn link để mở/lưu ảnh QR
+        document.getElementById('download-qr-link').href = qrUrl; 
         document.getElementById('topup-account-info-text').innerHTML = `
             <div class="space-y-2 text-left bg-amber-50/70 p-3 rounded-2xl border border-amber-200 text-xs">
                 <div class="flex justify-between items-center border-b border-amber-200 pb-1.5">
@@ -851,10 +660,10 @@
                     <b class="text-gray-900">MBBank (NGUYEN XUAN DINH)</b>
                 </div>
                 <div class="flex justify-between items-center border-b border-amber-200 pb-1.5">
-                    <span class="text-gray-600 font-medium">Số tài khoản:</span>
+                    <span class="text-gray-600 font-medium">Số TK:</span>
                     <div class="flex items-center gap-1.5">
                         <b class="text-rose-700 text-sm">0917719989</b>
-                        <button type="button" onclick="copyToClipboard('0917719989', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300"><i class="fa-regular fa-copy"></i> Copy</button>
+                        <button type="button" onclick="copyToClipboard('0917719989', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
                 <div class="flex justify-between items-center border-b border-amber-200 pb-1.5">
@@ -865,61 +674,12 @@
                     <span class="text-gray-600 font-medium">Nội dung:</span>
                     <div class="flex items-center gap-1.5">
                         <b class="text-rose-700">${memo}</b>
-                        <button type="button" onclick="copyToClipboard('${memo}', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300"><i class="fa-regular fa-copy"></i> Copy</button>
+                        <button type="button" onclick="copyToClipboard('${memo}', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300"><i class="fa-regular fa-copy"></i></button>
                     </div>
                 </div>
             </div>`;
     }
 
-    function updatePingPongUSDQR() {
-        let usd = parseFloat(document.getElementById('topup-usd-input').value) || 1;
-        let vndVal = Math.round(usd * freeMarketUsdRate);
-        let calculatedPts = Math.round(vndVal / 1000);
-        let memo = `${currentMemberCode}USD${usd}`;
-        
-        document.getElementById('usd-converted-hint').innerText = `~${vndVal.toLocaleString('vi-VN')}đ (~${calculatedPts} Point)`;
-        let qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${vndVal}&addInfo=${memo}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
-        document.getElementById('topup-vietqr-img').src = qrUrl;
-        document.getElementById('topup-account-info-text').innerHTML = `
-            <div class="space-y-1.5 text-left bg-amber-50/70 p-2.5 rounded-xl border border-amber-200">
-                <div class="flex justify-between items-center gap-1">
-                    <span>PingPong USD (Deutsche Bank): <b class="text-amber-900">${PINGPONG_IBAN}</b></span>
-                    <button type="button" onclick="copyToClipboard('${PINGPONG_IBAN}', this)" class="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold rounded text-[10px] border border-amber-400 shrink-0"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-                <div class="flex justify-between items-center gap-1">
-                    <span>Transfer Memo: <b class="text-rose-700">${memo}</b></span>
-                    <button type="button" onclick="copyToClipboard('${memo}', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300 shrink-0"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-            </div>`;
-    }
-
-    async function handleConfirmTopupPoints() {
-        let addedPts = 3;
-        let isUsd = !document.getElementById('topup-usd-box').classList.contains('hidden');
-        if (isUsd) {
-            let usd = parseFloat(document.getElementById('topup-usd-input').value) || 1;
-            addedPts = Math.round((usd * freeMarketUsdRate) / 1000);
-        } else {
-            addedPts = parseInt(document.getElementById('topup-point-amount').value);
-        }
-
-        userPoints += addedPts;
-        clockSecondsLeft = isEliteMember ? TIME_FREEZE_TINHHOA : TIME_FREEZE_PHOTHONG;
-        userManuallyClosedClock = false; // Reset cờ để đồng hồ tự bật lên khoe thành tích
-        updatePointFloatingBadgeUI();
-        closePointTopupModal();
-        if (userPoints >= (isEliteMember ? FEE_TINHHOA : FEE_PHOTHONG)) {
-            document.getElementById('hard-freeze-overlay').classList.add('hidden');
-            startSystemClockTicker();
-        }
-        alert(`🎉 Tự động cộng ${addedPts} Point thành công!`);
-        
-        try {
-            await db.collection("users").doc(currentMemberCode).update({ points: userPoints });
-        } catch(e) {}
-    }
-
-    // Cơ chế Khôi phục Mật khẩu bằng Ma trận Nhận thức Ngữ cảnh
     function openChallengeRecoveryModal() {
         document.getElementById('challenge-recovery-modal').classList.remove('hidden');
         document.getElementById('challenge-step-1').classList.remove('hidden');
@@ -959,27 +719,18 @@
         let qList = [];
         let gender = data.gender || "Nam";
         let edu = data.edu || "Đại học";
-        let looks = data.looks || "15-17";
-
+        
         qList.push({ q: `Hồ sơ của người bạn muốn tìm được khai báo giới tính là ${gender} phải không?`, ans: true, group: 'g' });
         qList.push({ q: `Hồ sơ của bạn khai báo giới tính khác với ${gender} phải không?`, ans: false, group: 'g' });
-        qList.push({ q: `Bạn chưa từng chọn trình độ học vấn là ${edu} phải không?`, ans: true, group: 'e' });
-        qList.push({ q: `Bạn chưa từng học qua trình độ ${edu} phải không?`, ans: false, group: 'e' });
-        qList.push({ q: `Kinh nghiệm của bạn thuộc mức thấp hơn ${looks} phải không?`, ans: true, group: 'l' });
-        qList.push({ q: `Ngoại hình của người mà bạn muốn tìm khác mức ${looks} phải không?`, ans: false, group: 'l' });
         qList.push({ q: `Hôm qua bạn vừa trao đổi công việc với một người khác phải không?`, ans: false, group: 'm' });
         qList.push({ q: `Bạn đã từng làm lao động phổ thông trong hai năm phải không?`, ans: false, group: 'm' });
-        qList.push({ q: `Hồ sơ của bạn có cấu hình tìm kiếm bán kính hoạt động trong phạm vi trên 10 kilometers không?`, ans: true, group: 's' });
         qList.push({ q: `Hệ thống của chúng tôi hoạt động hoàn toàn tự động qua đám mây phải không?`, ans: true, group: 's' });
         qList.push({ q: `Bạn sử dụng cổng thanh toán VietQR cho giao dịch nội địa VNĐ cách đây 2 ngày phải không?`, ans: true, group: 'p' });
-        qList.push({ q: `Tài khoản USD của hệ thống thuộc ngân hàng Deutsche Bank tại Hoa Kỳ không thể thanh toán toàn cầu phải không?`, ans: true, group: 'p' });
         qList.push({ q: `Bạn chưa từng sử dụng mã PIN để khóa phòng chat không?`, ans: true, group: 'c' });
         qList.push({ q: `Bạn đã từng chia sẻ định vị GPS trong phòng chat cách đây 48 tiếng phải không?`, ans: true, group: 'c' });
         qList.push({ q: `Bạn có muốn có mức thu nhập hơn 500.000đ phải không?`, ans: true, group: 's' });
-        qList.push({ q: `Bài kiểm tra này có tổng cộng 18 câu hỏi nhận thức ngữ cảnh và 4 câu nhân nhượng phải không?`, ans: true, group: 's' });
         qList.push({ q: `Bạn có chắc chắn mình chưa từng tham gia hệ thống này trước đây không?`, ans: false, group: 's' });
         qList.push({ q: `Bạn có gửi yêu cầu xác thực qua email cho quản trị viên để yêu cầu được cấp lại mật khẩu phải không?`, ans: false, group: 's' });
-        qList.push({ q: `Bạn có thói quen truy cập hệ thống vào cuối giờ chiều phải không?`, ans: false, group: 's' });
         qList.push({ q: `Bạn không sử dụng thiết bị di động để trải nghiệm ứng dụng này trong buổi sáng nay phải không?`, ans: true, group: 's' });
 
         return qList.sort(() => Math.random() - 0.5);
@@ -990,26 +741,17 @@
             finishQuizEvaluation();
             return;
         }
-        document.getElementById('quiz-progress-text').innerText = `Câu hỏi ${quizCurrentIndex + 1} / 20`;
+        document.getElementById('quiz-progress-text').innerText = `Câu hỏi ${quizCurrentIndex + 1} / ${quizQuestionsList.length}`;
         document.getElementById('quiz-question-box').innerText = quizQuestionsList[quizCurrentIndex].q;
     }
 
     function answerChallengeQuiz(userChoice) {
         let currentQ = quizQuestionsList[quizCurrentIndex];
-        
-        // Kiểm tra logic câu trả lời đảo ngược / mâu thuẫn -> Dừng khẩn cấp (Fail-fast)
         let isCorrect = (userChoice === currentQ.ans);
-        if (isCorrect) {
-            quizCorrectCount++;
-        } else {
-            // Kiểm tra mâu thuẫn chéo trực tiếp (nếu trả lời sai các câu khẳng định/phủ định đối lập)
-            if (currentQ.group && quizCurrentIndex > 5) {
-                // Kích hoạt dừng khẩn cấp nếu mâu thuẫn nghiêm trọng
-            }
-        }
+        if (isCorrect) quizCorrectCount++;
 
         quizCurrentIndex++;
-        if (quizCurrentIndex < 20) {
+        if (quizCurrentIndex < quizQuestionsList.length) {
             renderCurrentQuizQuestion();
         } else {
             finishQuizEvaluation();
@@ -1023,17 +765,19 @@
         const iconElem = document.getElementById('recovery-result-icon');
         const titleElem = document.getElementById('recovery-result-title');
         const descElem = document.getElementById('recovery-result-desc');
+        
+        let passingScore = Math.floor(quizQuestionsList.length * 0.85);
 
-        if (quizCorrectCount >= 17) {
+        if (quizCorrectCount >= passingScore) {
             iconElem.className = "w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl shadow";
             iconElem.innerHTML = `<i class="fa-solid fa-check"></i>`;
             titleElem.innerText = "Xác thực danh tính thành công!";
-            descElem.innerHTML = `Bạn đã trả lời đúng <b>${quizCorrectCount}/20</b> câu (>= 17).<br>Mật khẩu tài khoản của bạn là: <strong class="text-rose-600 text-base">${quizActiveData.password}</strong>`;
+            descElem.innerHTML = `Bạn đã trả lời đúng <b>${quizCorrectCount}/${quizQuestionsList.length}</b> câu.<br>Mật khẩu tài khoản của bạn là: <strong class="text-rose-600 text-base">${quizActiveData.password}</strong>`;
         } else {
             iconElem.className = "w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow";
             iconElem.innerHTML = `<i class="fa-solid fa-bolt"></i>`;
             titleElem.innerText = "Xác thực không thành công";
-            descElem.innerHTML = `⚡ Không đủ điểm để cấp lại tài khoản. Hãy tạo lại tài khoản miễn phí.<br><span class="text-gray-400 text-[11px]">(Điểm đạt: ${quizCorrectCount}/20)</span>`;
+            descElem.innerHTML = `⚡ Không đủ điểm để cấp lại tài khoản. Hãy tạo lại tài khoản miễn phí.<br><span class="text-gray-400 text-[11px]">(Điểm đạt: ${quizCorrectCount}/${quizQuestionsList.length})</span>`;
         }
     }
 
@@ -1088,6 +832,7 @@
                 if (data.address) document.getElementById('profile-address').value = data.address;
                 if (data.height) document.getElementById('profile-height').value = data.height;
                 if (data.weight) document.getElementById('profile-weight').value = data.weight;
+                if (data.profession) document.getElementById('profile-profession').value = data.profession;
                 if (data.experience) document.getElementById('profile-experience').value = data.experience;
                 if (data.quantity) document.getElementById('profile-quantity').value = data.quantity;
                 if (data.looksEdu) document.getElementById('profile-looks-edu').value = data.looksEdu;
@@ -1112,13 +857,11 @@
     window.addEventListener('DOMContentLoaded', async () => {
         initDeviceGPS();
 
-        
-
         let savedLastCode = localStorage.getItem('last_logged_code');
         if (savedLastCode) {
             currentMemberCode = savedLastCode;
         } else {
-            currentMemberCode = generateUniqueMemberCode(false);
+            currentMemberCode = generateUniqueMemberCode();
             localStorage.setItem('last_logged_code', currentMemberCode);
         }
 
@@ -1132,10 +875,6 @@
         let sessionLoggedIn = sessionStorage.getItem('is_logged_in') === 'true';
         if (sessionLoggedIn) {
             isUserLoggedIn = true;
-            if (currentMemberCode.startsWith("V")) {
-                isEliteMember = true;
-                clockSecondsLeft = 180;
-            }
             document.getElementById('user-badge-display').classList.remove('hidden');
             document.getElementById('user-badge-display').classList.add('flex');
             document.getElementById('logout-btn').classList.remove('hidden');
@@ -1149,136 +888,12 @@
         }
         updateAuthUIState();
         updatePointFloatingBadgeUI();
-        startSystemClockTicker();
         listenToUnreadMessagesBadge();
-        listenToDirectConnectRequests();
     });
 
     function updateAuthUIState() {
         const createBtn = document.getElementById('btn-create-new-account');
         if (createBtn) createBtn.classList.toggle('hidden', isUserLoggedIn);
-    }
-
-    // ĐOẠN CODE MỚI ĐỂ THAY THẾ:
-// Đưa khai báo pendingRequestId lên chung với các biến toàn cục (như currentMemberCode) ở đầu script
-let unsubscribeConnectRequests = null;
-window.pendingRequestId = null; 
-
-function listenToDirectConnectRequests() {
-    if (unsubscribeConnectRequests) {
-        unsubscribeConnectRequests();
-        unsubscribeConnectRequests = null;
-    }
-
-    if (!currentMemberCode) return;
-
-    unsubscribeConnectRequests = db.collection("connect_requests")
-        .where("targetCode", "==", currentMemberCode)
-        .where("status", "==", "pending")
-        .onSnapshot(snapshot => {
-            snapshot.forEach(doc => {
-                let data = doc.data();
-                db.collection("blocks").doc(currentMemberCode + "_" + data.senderCode).get().then(bDoc => {
-                    if (!bDoc.exists) {
-                        pendingDirectPartner = data.senderCode;
-                        window.pendingRequestId = doc.id; // LƯU LẠI ID TOÀN CỤC
-                        document.getElementById('connect-request-text').innerText = `Thành viên [${data.senderCode}] muốn kết nối trò chuyện với bạn.`;
-                        document.getElementById('connect-request-modal').classList.remove('hidden');
-                    }
-                });
-            });
-        });
-}
-
-    async function requestDirectConnect() {
-        const codeInput = document.getElementById('direct-connect-code').value.trim().toUpperCase();
-        if(!codeInput || codeInput === currentMemberCode) {
-            alert("Vui lòng nhập mã thành viên hợp lệ!");
-            return;
-        }
-
-        // Kiểm tra khóa 24h
-let failCount = parseInt(localStorage.getItem('direct_fail_count') || 0);
-let lockTime = parseInt(localStorage.getItem('direct_lock_time') || 0);
-let now = new Date().getTime();
-if (lockTime > now) {
-    alert("⚠️ Tính năng kết nối trực tiếp đã bị khóa 24h do nhập sai nhiều lần.");
-    return;
-}
-
-const uDoc = await db.collection("users").doc(codeInput).get();
-if(!uDoc.exists) {
-    failCount++;
-    if (failCount >= 3) {
-        localStorage.setItem('direct_lock_time', now + 86400000); // Khóa 24h
-        localStorage.setItem('direct_fail_count', 0);
-        alert("❌ Nhập sai 3 lần! Tính năng Kết nối bị khóa 24h.");
-    } else {
-        localStorage.setItem('direct_fail_count', failCount);
-        alert(`❌ Không tìm thấy mã! (Sai ${failCount}/3 lần)`);
-    }
-    return;
-}
-// Nếu nhập đúng, reset failCount
-        localStorage.setItem('direct_fail_count', 0);
-
-        await db.collection("connect_requests").add({
-            senderCode: currentMemberCode,
-            targetCode: codeInput,
-            status: "pending",
-            timestamp: new Date().toISOString()
-        });
-
-        alert(`✅ Đã gửi yêu cầu kết nối đến ${codeInput}.`);
-        document.getElementById('direct-connect-code').value = "";
-    }
-
-    async function acceptDirectConnect() {
-        document.getElementById('connect-request-modal').classList.add('hidden');
-        if(!pendingDirectPartner) return;
-
-        // Xóa yêu cầu pending trên Firestore để nó không bao giờ hiện lại nữa
-        if (window.pendingRequestId) {
-            try { await db.collection("connect_requests").doc(window.pendingRequestId).delete(); } catch(e){}
-            window.pendingRequestId = null;
-        }
-
-        const matchId = getCoreMatchId(currentMemberCode, pendingDirectPartner);
-        await db.collection("matches").doc(matchId).set({
-            members: [currentMemberCode, pendingDirectPartner],
-            updatedAt: new Date().toISOString()
-        });
-
-        let partnerDoc = await db.collection("users").doc(pendingDirectPartner).get();
-        let pData = partnerDoc.exists ? partnerDoc.data() : {};
-        openChatRoom(pendingDirectPartner, pData);
-    }
-
-    async function rejectDirectConnect() {
-        document.getElementById('connect-request-modal').classList.add('hidden');
-        if(!pendingDirectPartner) return;
-        
-        // Cập nhật trạng thái thành rejected (hoặc xóa)
-        if (window.pendingRequestId) {
-            try { await db.collection("connect_requests").doc(window.pendingRequestId).delete(); } catch(e){} // Đổi update thành delete cho sạch Database
-            window.pendingRequestId = null;
-        }
-        pendingDirectPartner = null;
-    }
-
-    function listenToUnreadMessagesBadge() {
-        db.collection("matches").where("members", "array-contains", currentMemberCode)
-            .onSnapshot(snapshot => {
-                let hasUnread = false;
-                snapshot.forEach(doc => {
-                    let data = doc.data();
-                    if(data.lastSender && data.lastSender !== currentMemberCode && !data.isRead) {
-                        hasUnread = true;
-                    }
-                });
-                const badgeDot = document.getElementById('chat-badge-dot');
-                if(badgeDot) badgeDot.classList.toggle('hidden', !hasUnread);
-            });
     }
 
     function changeProfileSlide(direction) {
@@ -1287,7 +902,7 @@ if(!uDoc.exists) {
 
         currentProfileSlide += direction;
         if (currentProfileSlide < 1) currentProfileSlide = 1;
-        if (currentProfileSlide > 4) currentProfileSlide = 4; // Chỉ còn 4 slide
+        if (currentProfileSlide > 4) currentProfileSlide = 4; 
 
         slides.forEach((s, idx) => {
             s.classList.toggle('hidden', idx + 1 !== currentProfileSlide);
@@ -1308,7 +923,7 @@ if(!uDoc.exists) {
     function changeFilterSlide(type, direction) {
         currentFilterSlideP += direction;
         if (currentFilterSlideP < 1) currentFilterSlideP = 1;
-        if (currentFilterSlideP > 2) currentFilterSlideP = 2; // Giảm xuống 2 slide
+        if (currentFilterSlideP > 2) currentFilterSlideP = 2; 
 
         document.querySelectorAll('.filter-slide-p').forEach((s, idx) => {
             s.classList.toggle('hidden', idx + 1 !== currentFilterSlideP);
@@ -1328,58 +943,19 @@ if(!uDoc.exists) {
     }
     function closeInfoModal() { document.getElementById('info-modal').classList.add('hidden'); }
 
-    function handleLockedSelect(selectElem) {
-        if (!isEliteMember && selectElem.value === "locked") {
-            selectElem.value = "free"; 
-            openElitePaymentModal();
-        }
-    }
 
-    function calculateTotal() {
-        let base = PRICE_ELITE_PACK;
-        let hide = PRICE_HIDE_PACK;
-
-        document.getElementById('price-base-display').innerText = base.toLocaleString('vi-VN') + 'đ/tháng';
-        document.getElementById('price-hide-display').innerText = '+' + hide.toLocaleString('vi-VN') + 'đ';
-
-        const baseCheckbox = document.getElementById('opt-base');
-        const hideCheckbox = document.getElementById('opt-hide');
-
-        // CHỈ THÀNH VIÊN V CHÍNH THỨC (Và có đủ 50 points) MỚI ĐƯỢC CHỌN MUA RIÊNG GÓI ẨN 10TR
-        const canBuyHideOnly = currentMemberCode.startsWith("V") && userPoints >= FEE_TINHHOA;
-
-        if (!canBuyHideOnly) {
-            baseCheckbox.checked = true;
-            baseCheckbox.disabled = true;
-        } else {
-            baseCheckbox.disabled = false;
-            // Ép giữ ít nhất 1 ô để tổng tiền không bằng 0
-            if (!baseCheckbox.checked && !hideCheckbox.checked) {
-                hideCheckbox.checked = true;
-            }
-        }
-
-        let total = 0;
-        if (baseCheckbox.checked) total += base;
-        if (hideCheckbox.checked) total += hide;
-
-        currentCalculatedAmount = total;
-        document.getElementById('total-price').innerText = total.toLocaleString('vi-VN') + 'đ/tháng';
-    }
-
-    // Bộ lọc chuẩn hóa: "Tất cả/Bất kể" của Phổ thông tuyệt đối loại trừ các giá trị Tinh hoa (khóa vàng)
-    async function executeSearchCandidates(type) {
-        if (type === 'tinhhoa' && (!isEliteMember || userPoints < FEE_TINHHOA)) {
-            openElitePaymentModal();
+    async function executeSearchCandidates() {
+        if (userPoints < 2) {
+            alert("⚠️ Số dư Point không đủ! Vui lòng nạp thêm Point để thực hiện chức năng Tìm kiếm (Phí: 2 Point/lượt).");
+            openPointTopupModal();
             return;
         }
 
-        let prefix = type === 'phothong' ? 'p' : 'v';
-        const filterGender = document.getElementById(`filter-gender-${prefix}`).value;
-        const filterAge = document.getElementById(`filter-age-${prefix}`).value;
-        const filterLooksEdu = document.getElementById(`filter-looks-edu-${prefix}`).value;
-        const filterPrice = parseInt(document.getElementById(`filter-price-${prefix}`).value) || 0;
-        const filterExp = document.getElementById(`filter-exp-${prefix}`).value.trim().toLowerCase();
+        const filterGender = document.getElementById('filter-gender-p').value;
+        const filterAge = document.getElementById('filter-age-p').value;
+        const filterLooksEdu = document.getElementById('filter-looks-edu-p').value;
+        const filterPrice = parseInt(document.getElementById('filter-price-p').value) || 0;
+        const filterExp = document.getElementById('filter-exp-p').value.trim().toLowerCase();
 
         const container = document.getElementById('candidates-container');
         container.innerHTML = `<div class="text-center py-6 text-rose-600 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu từ đám mây...</div>`;
@@ -1397,7 +973,6 @@ if(!uDoc.exists) {
                         lat: data.lat || userLatitude,
                         lng: data.lng || userLongitude,
                         code: data.code,
-                        type: data.isElite ? "tinhhoa" : "phothong",
                         looksEdu: data.looksEdu || "",
                         price: data.price || 0,
                         experience: data.experience || "",
@@ -1413,18 +988,15 @@ if(!uDoc.exists) {
 
            let list = cloudCandidates;
 
-            // 1. Lọc Lĩnh vực chuyên môn
             const filterProfession = document.getElementById('filter-profession-p').value;
             if (filterProfession && filterProfession !== "Tất cả/Bất kể") {
                 list = list.filter(item => item.profession === filterProfession);
             }
 
-            // 2. Lọc Giới tính
             if (filterGender && filterGender !== "Tất cả/Bất kể") {
                 list = list.filter(item => item.gender === filterGender);
             }
 
-            // 3. Lọc Độ tuổi
             if (filterAge && filterAge !== "Tất cả/Bất kể") {
                 if (filterAge === "46+") {
                     list = list.filter(item => item.age >= 46 && item.age <= 55);
@@ -1438,17 +1010,14 @@ if(!uDoc.exists) {
                 }
             }
 
-            // 4. Lọc Trình độ & Ngoại hình
             if (filterLooksEdu && filterLooksEdu !== "Tất cả/Bất kể") {
                 list = list.filter(item => item.looksEdu === filterLooksEdu);
             }
 
-            // 5. Lọc Giá tối đa
             if (filterPrice > 0) {
                 list = list.filter(item => item.price <= filterPrice);
             }
 
-            // 6. Lọc Từ khóa Tay nghề
             if (filterExp !== "") {
                 list = list.filter(item => item.experience.toLowerCase().includes(filterExp));
             }
@@ -1462,6 +1031,14 @@ if(!uDoc.exists) {
                 `;
                 return;
             }
+
+            // TRỪ POINT SAU KHI TÌM KIẾM THÀNH CÔNG VÀ CÓ KẾT QUẢ
+            userPoints -= 2;
+            updatePointFloatingBadgeUI();
+            db.collection("users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
+            
+            // Xóa alert phiền phức để UX mượt hơn
+            // alert("Đã trừ 2 Point cho lượt tìm kiếm này.");
 
             list.forEach(c => {
                 const dist = calculateDistanceKm(userLatitude, userLongitude, c.lat, c.lng);
@@ -1485,7 +1062,7 @@ if(!uDoc.exists) {
                         <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100">
                             <p class="text-gray-600 italic">"${c.desc}"</p>
                         </div>
-                        <button onclick="handleLikeCandidate('${c.code}', '${c.name}', '${firstImg}')" class="w-full py-2.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow">Lưu hồ sơ & Kết nối</button>
+                        <button onclick="handleLikeCandidate('${c.code}', '${c.name}')" class="w-full py-2.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow"><i class="fa-solid fa-comments text-yellow-300 mr-1"></i> Mở khóa liên hệ (5 Point)</button>
                     </div>
                 `;
             });
@@ -1494,24 +1071,35 @@ if(!uDoc.exists) {
         }
     }
 
-    async function handleLikeCandidate(partnerCode, partnerName, partnerImg) {
+    async function handleLikeCandidate(partnerCode, partnerName) {
+        if (userPoints < 5) {
+            alert("⚠️ Số dư Point không đủ! Vui lòng nạp thêm Point để mở khóa liên hệ (Phí: 5 Point/lượt).");
+            openPointTopupModal();
+            return;
+        }
+
+        if(!confirm(`Bạn có chắc chắn muốn dùng 5 Point để mở khóa liên hệ với [${partnerName}] không?`)) return;
+
         try {
             const matchId = getCoreMatchId(currentMemberCode, partnerCode);
             await db.collection("matches").doc(matchId).set({
                 members: [currentMemberCode, partnerCode],
                 updatedAt: new Date().toISOString()
             });
-            alert(`✅ Đã gửi Thích thành công đến ${partnerName} (${partnerCode})!`);
+
+            // Trừ point sau khi kết nối thành công
+            userPoints -= 5;
+            updatePointFloatingBadgeUI();
+            db.collection("users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
+
+            alert(`✅ Mở khóa thành công! Hãy vào Hộp thư để trò chuyện với ${partnerName}.`);
         } catch(e) {
-            alert("Đã kết nối thành công!");
+            alert("Lỗi kết nối đám mây!");
         }
     }
 
     async function openChatList() {
         showSection('chat-list-section');
-        
-        // Kích hoạt "Ống nghe" chuông điện thoại WebRTC
-        listenForIncomingCalls();
         
         const listContainer = document.getElementById('chat-conversations-container');
         listContainer.innerHTML = `<div class="text-center py-4 text-rose-600 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu đám mây...</div>`;
@@ -1519,22 +1107,7 @@ if(!uDoc.exists) {
         try {
             let chatItems = [];
 
-            // 1. TẢI DANH SÁCH NHÓM (GROUPS)
-            const groupsSnap = await db.collection("groups").where("members", "array-contains", currentMemberCode).get();
-            groupsSnap.forEach(doc => {
-                let data = doc.data();
-                chatItems.push({
-                    type: 'group',
-                    id: doc.id,
-                    name: data.groupName,
-                    membersCount: data.members.length,
-                    isAdmin: data.adminCode === currentMemberCode,
-                    fullData: data,
-                    updatedAt: data.updatedAt || data.createdAt
-                });
-            });
-
-            // 2. TẢI DANH SÁCH CHAT 1-1 (MATCHES)
+            // TẢI DANH SÁCH CHAT 1-1 (MATCHES)
             const matchesSnap = await db.collection("matches").where("members", "array-contains", currentMemberCode).get();
             for (let docSnap of matchesSnap.docs) {
                 let data = docSnap.data();
@@ -1547,7 +1120,8 @@ if(!uDoc.exists) {
                             type: 'single',
                             code: otherCode,
                             name: uData.nickname || "Thành viên",
-                            avatar: uData.images && uData.images.length > 0 ? uData.images[0] : "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='128'/><path fill='white' d='M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141-34.7-5.8-70.6 2.5-98.7 22.9L256 94.7l-37.9-27.7c-28.1-20.4-64-28.7-98.7-22.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z'/><path fill='%23f43f5e' d='M152 248h40l24-48 32 104 24-56h88' stroke='white' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/></svg>",
+                            avatar: uData.images && uData.images.length > 0 ? uData.images[0] : "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='128'/><path fill='white' d='M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141-34.7-5.8-70.6 2.5-98.7 22.9L256 94.7l-37.9-27.7c-28.1-20.4-64-28.7-98.7-22.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z'/><path fill='%23f4
+svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='128'/><path fill='white' d='M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141-34.7-5.8-70.6 2.5-98.7 22.9L256 94.7l-37.9-27.7c-28.1-20.4-64-28.7-98.7-22.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z'/><path fill='%23f43f5e' d='M152 248h40l24-48 32 104 24-56h88' stroke='white' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/></svg>",
                             fullData: uData,
                             updatedAt: data.updatedAt
                         });
@@ -1585,7 +1159,7 @@ if(!uDoc.exists) {
                         </div>
                     `;
                 } else {
-                    // Cấu trúc HTML của Chat 1-1 cũ
+                    // Cấu trúc HTML của Chat 1-1
                     listContainer.innerHTML += `
                         <div onclick='openChatRoom("${item.code}", ${JSON.stringify(item.fullData).replace(/'/g, "&#39;")})' class="p-3 bg-white hover:bg-rose-50 rounded-2xl border border-gray-200 flex items-center justify-between cursor-pointer transition shadow-sm mb-2.5">
                             <div class="flex items-center gap-3">
@@ -1757,15 +1331,15 @@ if(!uDoc.exists) {
         resetChatActivityTimer();
     }
 
-    // Modal xem hồ sơ đối phương (hiển thị đủ 6 thông tin & giới hạn tối đa 3 ảnh)
+    // Modal xem hồ sơ đối phương
     function openPartnerProfileModalByData(pData) {
         activePartnerFullData = pData || {};
         document.getElementById('modal-partner-name').innerText = activePartnerFullData.nickname || "Thành viên";
         document.getElementById('modal-partner-code').innerText = `Mã: ${activePartnerFullData.code || 'P...'}`;
         
         document.getElementById('modal-partner-age').innerText = activePartnerFullData.age ? activePartnerFullData.age + " tuổi" : "-";
-        document.getElementById('modal-partner-height').innerText = (activePartnerFullData.height ? activePartnerFullData.height + " cm" : "-") + " / " + (activePartnerFullData.weight ? activePartnerFullData.weight + " kg" : "-");
         document.getElementById('modal-partner-profession').innerText = activePartnerFullData.profession || "-";
+        document.getElementById('modal-partner-height').innerText = (activePartnerFullData.height ? activePartnerFullData.height + " cm" : "-") + " / " + (activePartnerFullData.weight ? activePartnerFullData.weight + " kg" : "-");
         document.getElementById('modal-partner-exp').innerText = activePartnerFullData.experience || "-";
         document.getElementById('modal-partner-looksedu').innerText = activePartnerFullData.looksEdu || "-";
         document.getElementById('modal-partner-price').innerText = activePartnerFullData.price ? activePartnerFullData.price.toLocaleString('vi-VN') + "đ/ngày" : "Thỏa thuận";
@@ -1784,164 +1358,73 @@ if(!uDoc.exists) {
         document.getElementById('partner-profile-modal').classList.remove('hidden');
     }
 
-    async function executeSearchCandidates(type) {
-        if (type === 'tinhhoa' && (!isEliteMember || userPoints < FEE_TINHHOA)) {
-            openElitePaymentModal();
-            return;
-        }
-
-        let prefix = type === 'phothong' ? 'p' : 'v';
-        const filterGender = document.getElementById(`filter-gender-${prefix}`).value;
-        const filterAge = document.getElementById(`filter-age-${prefix}`).value;
-        const filterLooksEdu = document.getElementById(`filter-looks-edu-${prefix}`).value;
-        const filterPrice = parseInt(document.getElementById(`filter-price-${prefix}`).value) || 0;
-        const filterExp = document.getElementById(`filter-exp-${prefix}`).value.trim().toLowerCase();
-
-        const container = document.getElementById('candidates-container');
-        container.innerHTML = `<div class="text-center py-6 text-rose-600 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu từ đám mây...</div>`;
-
-        try {
-            const snapshot = await db.collection("users").get();
-            let cloudCandidates = [];
-            snapshot.forEach(doc => {
-                let data = doc.data();
-                if (data.code !== currentMemberCode) {
-                    cloudCandidates.push({
-                        name: data.nickname || "Thành viên",
-                        gender: data.gender || "Nam",
-                        age: data.age || 0,
-                        lat: data.lat || userLatitude,
-                        lng: data.lng || userLongitude,
-                        code: data.code,
-                        type: data.isElite ? "tinhhoa" : "phothong",
-                        looksEdu: data.looksEdu || "",
-                        price: data.price || 0,
-                        experience: data.experience || "",
-                        quantity: data.quantity || 1,
-                        address: data.address || "",
-                        desc: data.bio || "Chưa có lời giới thiệu.",
-                        images: data.images && data.images.length > 0 ? data.images : ["data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='128'/><path fill='white' d='M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141-34.7-5.8-70.6 2.5-98.7 22.9L256 94.7l-37.9-27.7c-28.1-20.4-64-28.7-98.7-22.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z'/><path fill='%23f43f5e' d='M152 248h40l24-48 32 104 24-56h88' stroke='white' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/></svg>"],
-                        fullData: data
-                    });
-                }
-            });
-
-            // 1. Phân loại Phổ thông / Tinh hoa
-            let list = cloudCandidates.filter(item => item.type === type);
-            if (type === 'phothong') {
-                list = list.filter(item => item.looksEdu !== "Tinh hoa"); // Phổ thông tuyệt đối loại trừ Tinh hoa
-            }
-
-            // 2. Lọc Giới tính
-            if (filterGender && filterGender !== "Tất cả/Bất kể") {
-                list = list.filter(item => item.gender === filterGender);
-            }
-
-            // 3. Lọc Độ tuổi
-            if (filterAge && filterAge !== "Tất cả/Bất kể") {
-                if (filterAge === "46+") {
-                    list = list.filter(item => item.age >= 46);
-                } else {
-                    let parts = filterAge.split('-');
-                    if (parts.length === 2) {
-                        let minA = parseInt(parts[0]);
-                        let maxA = parseInt(parts[1]);
-                        list = list.filter(item => item.age >= minA && item.age <= maxA);
-                    }
-                }
-            }
-
-            // 4. Lọc Trình độ & Ngoại hình
-            if (filterLooksEdu && filterLooksEdu !== "Tất cả/Bất kể" && filterLooksEdu !== "locked") {
-                list = list.filter(item => item.looksEdu === filterLooksEdu);
-            }
-
-            // 5. Lọc Giá tối đa
-            if (filterPrice > 0) {
-                list = list.filter(item => item.price <= filterPrice);
-            }
-
-            // 6. Lọc Từ khóa Tay nghề
-            if (filterExp !== "") {
-                list = list.filter(item => item.experience.toLowerCase().includes(filterExp));
-            }
-
-            container.innerHTML = "";
-            if (list.length === 0) {
-                container.innerHTML = `
-                    <div class="bg-white/80 p-6 rounded-3xl text-center border border-rose-200">
-                        <p class="text-sm font-bold text-gray-500">Chưa tìm thấy nhân công nào phù hợp với bộ lọc.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            list.forEach(c => {
-                const dist = calculateDistanceKm(userLatitude, userLongitude, c.lat, c.lng);
-                let firstImg = c.images[0];
-                let priceStr = c.price > 0 ? c.price.toLocaleString('vi-VN') + "đ/ngày" : "Thỏa thuận";
-
-                container.innerHTML += `
-                    <div class="bg-white/95 p-4 rounded-3xl shadow-md border border-rose-100 flex flex-col justify-between text-sm space-y-3">
-                        <div class="flex items-center gap-3">
-                            <img src="${firstImg}" class="w-14 h-14 rounded-full object-cover border-2 border-rose-500 shadow cursor-pointer" onclick='openPartnerProfileModalByData(${JSON.stringify(c.fullData).replace(/'/g, "&#39;")})'>
-                            <div>
-                                <h3 class="font-bold text-gray-800 text-base cursor-pointer hover:underline" onclick='openPartnerProfileModalByData(${JSON.stringify(c.fullData).replace(/'/g, "&#39;")})'>${c.name}</h3>
-                                <p class="text-xs text-rose-600 font-bold"><i class="fa-solid fa-location-dot"></i> Cách ${dist} km • Mã: ${c.code}</p>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center text-xs font-semibold text-gray-700 bg-gray-50 p-2 rounded-xl border border-gray-200">
-                            <span><i class="fa-solid fa-user-tag text-rose-500"></i> ${c.quantity} người</span>
-                            <span class="text-emerald-600 font-black"><i class="fa-solid fa-money-bill-wave"></i> ${priceStr}</span>
-                        </div>
-                        <p class="text-gray-700 font-semibold"><i class="fa-solid fa-hammer text-gray-400"></i> ${c.experience}</p>
-                        <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                            <p class="text-gray-600 italic">"${c.desc}"</p>
-                        </div>
-                        <button onclick="handleLikeCandidate('${c.code}', '${c.name}', '${firstImg}')" class="w-full py-2.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow">Lưu hồ sơ & Kết nối</button>
-                    </div>
-                `;
-            });
-        } catch(e) {
-            container.innerHTML = `<div class="text-center py-6 text-red-600 font-bold">Lỗi kết nối đám mây.</div>`;
-        }
-    }
-                    
-                    
-
     async function sendTextMessage() {
-        // KIỂM TRA BẢO MẬT: Chặn gửi tin nhắn nếu đã đăng xuất
         if (!isUserLoggedIn || !currentMemberCode) {
             alert("⚠️ Phiên làm việc đã kết thúc do bạn đã đăng xuất. Vui lòng đăng nhập lại!");
-            resetToLogin();
-            return;
+            resetToLogin(); return;
         }
 
         const input = document.getElementById('chat-input-text');
         const text = input.value.trim();
-        if (!text || !activeChatPartnerCode) return;
+        if (!text) return;
+        if (!activeChatPartnerCode && !activeGroupId) return; // Không ở phòng nào cả
 
-        resetChatActivityTimer();
-        const chatId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
-        const matchId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
+        input.value = ""; // Clear ô chữ lập tức để tạo cảm giác mượt
 
-        try {
-            const encryptedText = CryptoJS.AES.encrypt(text, chatId).toString();
+        // TRƯỜNG HỢP 1: GỬI TIN NHẮN NHÓM
+        if (activeGroupId) {
+            const groupKey = activeGroupFullData.groupKey;
+            
+            // [LOGIC GIAI ĐOẠN 3]: Kiểm tra quyền nhắn tin
+            let mode = activeGroupFullData.messagingMode || 'free';
+            let isCoAdmin = (activeGroupFullData.coAdmins || []).includes(currentMemberCode);
+            let isAllowed = false;
+            
+            if (mode === 'free') isAllowed = true;
+            if (mode === 'admin_only' && (activeGroupFullData.adminCode === currentMemberCode || isCoAdmin)) isAllowed = true;
+            
+            if (!isAllowed) {
+                alert("🔇 Trưởng nhóm đã thiết lập chế độ Cấm ngôn. Bạn chỉ được phép xem tin nhắn.");
+                return;
+            }
 
-            await db.collection("chats").doc(chatId).collection("messages").add({
-                sender: currentMemberCode,
-                text: encryptedText,
-                type: "text",
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            await db.collection("matches").doc(matchId).update({
-                lastSender: currentMemberCode,
-                isRead: false,
-                updatedAt: new Date().toISOString()
-            });
-            input.value = "";
-        } catch(e) {
-            alert("❌ Không thể gửi tin nhắn. Tài khoản đã bị hủy phiên kết nối.");
+            try {
+                // Mã hóa bằng Chìa khóa nhóm
+                const encryptedText = CryptoJS.AES.encrypt(text, groupKey).toString();
+                await db.collection("groups").doc(activeGroupId).collection("messages").add({
+                    sender: currentMemberCode,
+                    text: encryptedText,
+                    type: "text",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                // Cập nhật UpdateAt để Nhóm trồi lên đầu hộp thư
+                await db.collection("groups").doc(activeGroupId).update({ updatedAt: new Date().toISOString() });
+            } catch(e) {
+                alert("❌ Lỗi gửi tin nhắn nhóm.");
+            }
+        } 
+        // TRƯỜNG HỢP 2: GỬI TIN NHẮN 1-1 (CŨ)
+        else if (activeChatPartnerCode) {
+            resetChatActivityTimer();
+            const chatId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
+            const matchId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
+
+            try {
+                const encryptedText = CryptoJS.AES.encrypt(text, chatId).toString();
+                await db.collection("chats").doc(chatId).collection("messages").add({
+                    sender: currentMemberCode,
+                    text: encryptedText,
+                    type: "text",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await db.collection("matches").doc(matchId).update({
+                    lastSender: currentMemberCode,
+                    isRead: false,
+                    updatedAt: new Date().toISOString()
+                });
+            } catch(e) {
+                alert("❌ Lỗi gửi tin cá nhân.");
+            }
         }
     }
 
@@ -1974,14 +1457,10 @@ if(!uDoc.exists) {
 
     function goHome() {
         if (isUserLoggedIn) {
-            // [SỬA LỖI]: Bắt buộc reset lại vị trí bộ lọc về slide 1 khi mở tab Khám phá
+            // Bắt buộc reset lại vị trí bộ lọc về slide 1 khi mở tab Khám phá
             currentFilterSlideP = 1;
-            currentFilterSlideV = 1;
             changeFilterSlide('p', 0);
-            changeFilterSlide('v', 0);
-            
             showSection('search-section');
-            applyMemberSearchPermission();
         } else {
             showSection('login-section');
         }
@@ -2016,11 +1495,9 @@ if(!uDoc.exists) {
         let savedLastCode = currentMemberCode || localStorage.getItem('last_logged_code');
         
         isUserLoggedIn = false;
-        isEliteMember = false;
         activeChatPartnerCode = null;
         
         sessionStorage.setItem('is_logged_in', 'false');
-        // ĐÃ XÓA dòng lệnh localStorage.removeItem('last_logged_code'); ĐỂ GIỮ LẠI MÃ THÀNH VIÊN
         
         // Cập nhật lại giao diện, giữ lại mã thành viên nhưng XÓA TRẮNG mật khẩu
         if (savedLastCode) {
@@ -2043,19 +1520,20 @@ if(!uDoc.exists) {
     }
 
     function showSection(sectionId) {
-        // [BỔ SUNG]: Tự động ẩn menu 3 chấm khi chuyển qua màn hình khác
+        // Tự động ẩn menu 3 chấm khi chuyển qua màn hình khác
         const dropMenu = document.getElementById('chat-options-dropdown');
         if (dropMenu) dropMenu.classList.add('hidden');
 
         // Rời khỏi phòng chat -> Xóa ngay session để lần sau bấm vào phải nhập lại PIN
         if (sectionId !== 'chat-room-section') {
-        if (chatActivityTimer) clearTimeout(chatActivityTimer);
-        activeChatPartnerCode = null;
-        if (isUserLoggedIn) document.getElementById('point-floating-badge').classList.remove('hidden'); // Hiện lại Point
+            if (chatActivityTimer) clearTimeout(chatActivityTimer);
+            activeChatPartnerCode = null;
+            if (isUserLoggedIn) document.getElementById('point-floating-badge').classList.remove('hidden'); // Hiện lại Point
         }
 
-        ['login-section', 'code-login-section', 'profile-section', 'search-section', 'checkout-section', 'chat-list-section', 'chat-room-section'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
+        ['login-section', 'code-login-section', 'profile-section', 'search-section', 'chat-list-section', 'chat-room-section'].forEach(id => {
+            let el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
         });
         document.getElementById(sectionId).classList.remove('hidden');
 
@@ -2070,40 +1548,7 @@ if(!uDoc.exists) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function openElitePaymentModal() {
-        // [LUẬT CHẶT CHẼ]: Chỉ mở bảng thanh toán khi ĐÃ LƯU THÀNH MÃ V TRÊN HỆ THỐNG
-        if (!currentMemberCode.startsWith("V")) {
-            alert("⚠️ Hệ thống chưa ghi nhận bạn là ứng viên Tinh hoa.\n\nĐể nâng cấp, hãy chọn ít nhất một giá trị có Khóa Vàng (🔒) trong hồ sơ và bấm nút 'LƯU HỒ SƠ'");
-            showSection('profile-section'); // Tự động đá họ về trang hồ sơ để bắt làm cho đúng
-            return; // Chặn đứng, không cho hiện bảng QR!
-        }
-
-        // Mở bảng chọn Gói cước
-        document.getElementById('elite-payment-modal').classList.remove('hidden');
-        if (document.getElementById('opt-base')) document.getElementById('opt-base').checked = true;
-        if (document.getElementById('opt-hide')) document.getElementById('opt-hide').checked = false;
-        calculateTotal();
-        
-        let timeLeft = 10;
-        const timerElem = document.getElementById('countdown-timer');
-        timerElem.innerText = `⏱️ Tự động đóng sau ${timeLeft} giây...`;
-        if (eliteTimer) clearInterval(eliteTimer);
-        eliteTimer = setInterval(() => {
-            timeLeft--;
-            timerElem.innerText = `⏱️ Tự động đóng sau ${timeLeft} giây...`;
-            if (timeLeft <= 0) {
-                clearInterval(eliteTimer);
-                closeEliteModal();
-            }
-        }, 1000);
-    }
-
-    function closeEliteModal() {
-        if (eliteTimer) clearInterval(eliteTimer);
-        document.getElementById('elite-payment-modal').classList.add('hidden');
-    }
-
-    function handleLoginClick() { closeEliteModal(); showSection('code-login-section'); }
+    function handleLoginClick() { showSection('code-login-section'); }
     function showCodeLoginForm() { showSection('code-login-section'); }
 
     async function handleCodeLogin(event) {
@@ -2125,7 +1570,6 @@ if(!uDoc.exists) {
                 currentMemberCode = inputCode;
                 localStorage.setItem('last_logged_code', currentMemberCode);
                 sessionStorage.setItem('is_logged_in', 'true');
-                if (currentMemberCode.startsWith("V")) isEliteMember = true;
 
                 updateMemberBadgeStyle(currentMemberCode);
                 document.getElementById('user-badge-display').classList.remove('hidden');
@@ -2160,10 +1604,9 @@ if(!uDoc.exists) {
     }
 
     function handleCreateNewAccount() {
-        currentMemberCode = generateUniqueMemberCode(false);
+        currentMemberCode = generateUniqueMemberCode();
         localStorage.setItem('last_logged_code', currentMemberCode);
         userPoints = FEE_PHOTHONG;
-        clockSecondsLeft = TIME_FREEZE_PHOTHONG;
         
         document.getElementById('profile-nickname').value = "";
         document.getElementById('profile-gender').value = "";
@@ -2192,23 +1635,17 @@ if(!uDoc.exists) {
         const looksEduVal = document.getElementById('profile-looks-edu').value;
         
         let oldMemberCode = currentMemberCode; 
-        let isCompletelyNewVCode = false;
 
         // --- VÒNG LẶP KIỂM TRA CHỐNG TRÙNG LẶP MÃ THÀNH VIÊN ---
         let isCodeUnique = false;
         while (!isCodeUnique) {
             try {
                 let checkDoc = await db.collection("users").doc(currentMemberCode).get();
-                
                 if (checkDoc.exists) {
                     if (isUserLoggedIn && currentMemberCode === oldMemberCode) {
                         isCodeUnique = true;
                     } else {
-                        let isVip = currentMemberCode.startsWith("V");
-                        currentMemberCode = generateUniqueMemberCode(isVip);
-                        if (isUserLoggedIn && oldMemberCode.startsWith("P") && isVip) {
-                            isCompletelyNewVCode = true;
-                        }
+                        currentMemberCode = generateUniqueMemberCode();
                     }
                 } else {
                     isCodeUnique = true;
@@ -2219,10 +1656,6 @@ if(!uDoc.exists) {
         }
         // ----------------------------------------------------
 
-        let addTime = currentMemberCode.startsWith("V") ? TIME_ON_V_INIT : TIME_ON1_P;
-        let expireDateInit = new Date(new Date().getTime() + addTime); 
-
-        // ĐÓNG GÓI DỮ LIỆU ĐỂ BẮN LÊN FIREBASE
         // ĐÓNG GÓI DỮ LIỆU ĐỂ BẮN LÊN FIREBASE
         const profileObj = {
             code: currentMemberCode,
@@ -2232,7 +1665,7 @@ if(!uDoc.exists) {
             address: document.getElementById('profile-address').value,
             height: document.getElementById('profile-height').value,
             weight: document.getElementById('profile-weight').value,
-            profession: professionVal, // Thêm dòng này để ghi Lĩnh vực lên đám mây
+            profession: professionVal,
             experience: document.getElementById('profile-experience').value,
             quantity: parseInt(document.getElementById('profile-quantity').value) || 1,
             looksEdu: looksEduVal,
@@ -2242,13 +1675,11 @@ if(!uDoc.exists) {
             lat: userLatitude,
             lng: userLongitude,
             points: userPoints,
-            expireAt: expireDateInit.toISOString(), 
             updatedAt: new Date().toISOString()
         };
 
         try {
-            // 1. Chỉ đưa mật khẩu vào Auth nếu là ĐĂNG KÝ MỚI hoặc vừa ĐỔI MÃ (Từ P sang V)
-            // Ngăn chặn lỗi văng ứng dụng khi người dùng cũ chỉ muốn cập nhật lại thông tin hồ sơ
+            // 1. Chỉ đưa mật khẩu vào Auth nếu là ĐĂNG KÝ MỚI hoặc vừa ĐỔI MÃ
             if (!isUserLoggedIn || oldMemberCode !== currentMemberCode) {
                 const fakeEmail = currentMemberCode + "@seeing.love";
                 await firebase.auth().createUserWithEmailAndPassword(fakeEmail, newPass.trim());
@@ -2257,81 +1688,8 @@ if(!uDoc.exists) {
             // 2. Lưu hồ sơ sạch lên Firestore
             await db.collection("users").doc(currentMemberCode).set(profileObj);
 
-            // [ĐỒNG BỘ CHAT BẢO LƯU CHO CA NÂNG CẤP HOẶC DỜI NHÀ]
+            // [ĐỒNG BỘ CHAT BẢO LƯU CHO CA ĐỔI MÃ]
             if (isUserLoggedIn && oldMemberCode !== currentMemberCode) {
-                const matchesSnap = await db.collection("matches").where("members", "array-contains", oldMemberCode).get();
-                
-                if (isCompletelyNewVCode) {
-                    // XỬ LÝ CA CẤP TỐC 0.01%: "Dời nhà" & "Chìa khóa mới"
-                    for (let docSnap of matchesSnap.docs) {
-                        let matchData = docSnap.data();
-                        let partnerCode = matchData.members.find(m => m !== oldMemberCode);
-                        if (!partnerCode) continue;
-
-                        let oldMatchId = getCoreMatchId(oldMemberCode, partnerCode);
-                        let newMatchId = getCoreMatchId(currentMemberCode, partnerCode);
-                        let newMembers = matchData.members.map(m => m === oldMemberCode ? currentMemberCode : m);
-                        
-                        // A. Tạo Match phòng chat mới
-                        await db.collection("matches").doc(newMatchId).set({
-                            ...matchData,
-                            members: newMembers,
-                            updatedAt: new Date().toISOString()
-                        });
-
-                        // B. Giải mã tin cũ (Bằng Key cũ) -> Mã hóa lại (Bằng Key mới) -> Chuyển nhà
-                        let msgsSnap = await db.collection("chats").doc(oldMatchId).collection("messages").get();
-                        let batch = db.batch();
-                        
-                        msgsSnap.forEach(msgDoc => {
-                            let msgData = msgDoc.data();
-                            if (msgData.type === 'text') {
-                                try {
-                                    let bytes = CryptoJS.AES.decrypt(msgData.text, oldMatchId);
-                                    let decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-                                    if (decryptedText) {
-                                        msgData.text = CryptoJS.AES.encrypt(decryptedText, newMatchId).toString();
-                                    }
-                                } catch(e) {}
-                            }
-                            let newMsgRef = db.collection("chats").doc(newMatchId).collection("messages").doc(msgDoc.id);
-                            batch.set(newMsgRef, msgData);
-                            batch.delete(msgDoc.ref); // Xóa sạch tin cũ ở nhà cũ
-                        });
-
-                        // C. Gửi thông báo hệ thống ngay trong khung chat (Đã mã hóa)
-                        let sysMsgText = CryptoJS.AES.encrypt(`⚠️ [HỆ THỐNG]: Thành viên đã nâng cấp và đổi sang mã định ${currentMemberCode}.`, newMatchId).toString();
-                        let sysMsgRef = db.collection("chats").doc(newMatchId).collection("messages").doc();
-                        batch.set(sysMsgRef, {
-                            sender: currentMemberCode,
-                            text: sysMsgText,
-                            type: "text",
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-
-                        await batch.commit();
-                        await db.collection("matches").doc(oldMatchId).delete(); // Đập bỏ Match cũ
-                    }
-                } else {
-                    // TRƯỜNG HỢP 99.99%: Đổi P sang V nhưng giữ nguyên đuôi
-                    const batch = db.batch();
-                    matchesSnap.forEach(doc => {
-                        let matchData = doc.data();
-                        let newMembers = matchData.members.map(m => m === oldMemberCode ? currentMemberCode : m);
-                        batch.update(doc.ref, { members: newMembers });
-                    });
-                    await batch.commit();
-                }
-                
-                // Cập nhật giao diện phòng chat hiện tại nếu bạn đang mở dở
-                if (activeChatPartnerCode) {
-                    document.getElementById('profile-member-code').innerText = currentMemberCode;
-                    if (isCompletelyNewVCode) loadRealtimeMessages(); // Ép load lại luồng chat vì ID phòng đã thay đổi
-                }
-            }
-
-            // [TÍNH NĂNG 1] ĐỒNG BỘ CHAT BẢO LƯU: Nếu mã bị đổi từ P sang V, cập nhật ngay vào Matches
-            if (oldMemberCode !== currentMemberCode) {
                 const matchesSnap = await db.collection("matches").where("members", "array-contains", oldMemberCode).get();
                 const batch = db.batch();
                 matchesSnap.forEach(doc => {
@@ -2341,7 +1699,7 @@ if(!uDoc.exists) {
                 });
                 await batch.commit();
                 
-                // Cập nhật giao diện phòng chat hiện tại nếu đang mở dở
+                // Cập nhật giao diện phòng chat hiện tại nếu bạn đang mở dở
                 if (activeChatPartnerCode) {
                     document.getElementById('profile-member-code').innerText = currentMemberCode;
                 }
@@ -2351,7 +1709,6 @@ if(!uDoc.exists) {
             sessionStorage.setItem('is_logged_in', 'true');
             
             isUserLoggedIn = true;
-            if (shouldBeElite) isEliteMember = true;
 
             updateMemberBadgeStyle(currentMemberCode);
             document.getElementById('user-badge-display').classList.remove('hidden');
@@ -2367,12 +1724,10 @@ if(!uDoc.exists) {
             
             applyMemberSearchPermission();
             updatePointFloatingBadgeUI();
-            applyMemberSearchPermission();
-            updatePointFloatingBadgeUI();
+            
             alert(`✅ Đã lưu hồ sơ bảo mật thành công!\nMã thành viên: ${currentMemberCode}`);
             
-            // Ép F5 làm mới trình duyệt để kích hoạt mượt mà đồng hồ đếm ngược từ Cloud
-            window.location.reload(true); 
+            showSection('search-section');
             
         } catch(e) {
             console.error("Lỗi đăng ký:", e);
@@ -2384,179 +1739,6 @@ if(!uDoc.exists) {
         const input = document.getElementById('bio-input');
         const counter = document.getElementById('bio-counter');
         counter.innerText = `${input.value.length}/500 ký tự`;
-    }
-
-    async function goToPaymentCheckout() {
-        const isBaseChecked = document.getElementById('opt-base') && document.getElementById('opt-base').checked;
-        const isHideChecked = document.getElementById('opt-hide') && document.getElementById('opt-hide').checked;
-
-        closeEliteModal();
-
-        // 1. KIỂM TRA MUA GÓI ẨN BẰNG POINT
-        // Ghi chú: Mã P không có khóa vàng đã bị chặn ở openElitePaymentModal.
-        // Chỉ có người ĐÃ CÓ MÃ V (Tạm thời hoặc Chính thức) mới lọt được vào hàm này.
-        if (isHideChecked && !isBaseChecked && userPoints >= 10000) {
-            userPoints -= 10000; // Khấu trừ 10k points, phần dư giữ nguyên để duy trì V
-            let expDate = new Date();
-            expDate.setMonth(expDate.getMonth() + 1);
-            
-            try {
-                await db.collection("users").doc(currentMemberCode).update({
-                    points: userPoints, 
-                    isHidden: true, 
-                    hideExpireAt: expDate.toISOString(), 
-                    updatedAt: new Date().toISOString()
-                });
-            } catch(e) {}
-            
-            updatePointFloatingBadgeUI();
-            alert(`🎉 Đổi thành công gói Ẩn Hồ Sơ bằng 10.000 points! Nếu ví còn trên 50 points, trạng thái Tinh hoa sẽ tự động kích hoạt.`);
-            showSection('search-section');
-            showVipHiddenPopup();
-            startVipHiddenPopupSchedule();
-            
-            // Nếu phần dư vẫn >= 50, hệ thống đồng hồ tự động xử lý rã đông và cho chạy 24h
-            if (userPoints >= FEE_TINHHOA) {
-                document.getElementById('hard-freeze-overlay').classList.add('hidden');
-                startSystemClockTicker();
-            }
-            return; // Đã thanh toán bằng Point xong, không cần hiện QR!
-        }
-
-        // 2. NẾU MUA BẰNG TIỀN MẶT -> ĐỔ RA MÀN HÌNH QUÉT QR
-        let orderCode = currentMemberCode;
-        if (isHideChecked && !isBaseChecked) orderCode = currentMemberCode + "HIDE10M";
-        else if (isHideChecked && isBaseChecked) orderCode = currentMemberCode + "VIPHIDE";
-
-        // Đổ dữ liệu giá tiền
-        document.getElementById('checkout-memo').innerText = orderCode;
-        document.getElementById('checkout-amount').innerText = currentCalculatedAmount.toLocaleString('vi-VN') + 'đ';
-        let usdEquivalent = (currentCalculatedAmount / freeMarketUsdRate).toFixed(2);
-        document.getElementById('checkout-usd-amount').innerText = `$${usdEquivalent} USD`;
-        document.getElementById('checkout-usd-memo').innerText = `${orderCode}USD${usdEquivalent}`;
-
-        // Gọi ảnh QR
-        const qrApiUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${currentCalculatedAmount}&addInfo=${orderCode}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
-        document.getElementById('vietqr-img').src = qrApiUrl;
-        switchCheckoutCurrency('VND');
-        
-        showSection('checkout-section'); // Nhảy sang màn hình quét QR
-        
-        // Kích hoạt radar: Khi tiền về Webhook, sẽ tự cộng tiền / mở gói và phá băng!
-        watchUserPointsForPayment(currentMemberCode, userPoints);
-    }
-
-    function switchCheckoutCurrency(curr) {
-        if (curr === 'VND') {
-            document.getElementById('btn-chk-vnd').className = "px-4 py-1.5 bg-rose-600 text-white font-bold rounded-lg text-xs";
-            document.getElementById('btn-chk-usd').className = "px-4 py-1.5 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs";
-            document.getElementById('checkout-vnd-panel').classList.remove('hidden');
-            document.getElementById('checkout-usd-panel').classList.add('hidden');
-        } else {
-            document.getElementById('btn-chk-usd').className = "px-4 py-1.5 bg-amber-500 text-white font-bold rounded-lg text-xs";
-            document.getElementById('btn-chk-vnd').className = "px-4 py-1.5 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs";
-            document.getElementById('checkout-usd-panel').classList.remove('hidden');
-            document.getElementById('checkout-vnd-panel').classList.add('hidden');
-        }
-    }
-
-    async function handleUserConfirmPayment() {
-        const isBaseChecked = document.getElementById('opt-base') ? document.getElementById('opt-base').checked : true;
-        const isHideChecked = document.getElementById('opt-hide') && document.getElementById('opt-hide').checked;
-
-        // [LOGIC TÀI CHÍNH MỚI]: Nếu khách chọn Ẩn hồ sơ (10 triệu), đang là mã V và ví có >= 10.100 points thì trừ trực tiếp bằng Point
-        if (isHideChecked && !isBaseChecked && currentMemberCode.startsWith("V") && userPoints >= 10100) {
-            userPoints -= 10000; // Trừ 10.000 points tương đương 10 triệu
-            
-            let expDate = new Date();
-            expDate.setMonth(expDate.getMonth() + 1);
-            expDate.setDate(expDate.getDate() - 1);
-            expDate.setMinutes(expDate.getMinutes() + 1);
-            let hideExpireIso = expDate.toISOString();
-
-            try {
-                await db.collection("users").doc(currentMemberCode).update({
-                    points: userPoints,
-                    isHidden: true,
-                    hideExpireAt: hideExpireIso,
-                    updatedAt: new Date().toISOString()
-                });
-            } catch(e) {}
-
-            closeEliteModal();
-            updatePointFloatingBadgeUI();
-            alert(`🎉 Đổi thành công gói Ẩn Hồ Sơ bằng 10.000 points! Tài khoản của bạn đã được ẩn danh tuyệt đối.`);
-            showSection('search-section');
-            showVipHiddenPopup();
-            startVipHiddenPopupSchedule();
-            return;
-        }
-
-        // Nếu không đủ điểm hoặc mua gói chuyển khoản tiền mặt thông thường -> Chạy qua cổng QR Checkout
-        document.getElementById('progress-bar').className = "h-full bg-emerald-500 w-full transition-all duration-500";
-        document.getElementById('step-2-icon').className = "w-6 h-6 rounded-full bg-emerald-500 text-white font-black flex items-center justify-center text-xs";
-        document.getElementById('step-2-text').className = "font-bold text-emerald-600";
-
-        let addedPointsFromPackage = isBaseChecked ? Math.round(PRICE_ELITE_PACK / 1000) : 0;
-        let hideExpireIso = null;
-        if (isHideChecked) {
-            let expDate = new Date();
-            expDate.setMonth(expDate.getMonth() + 1);
-            expDate.setDate(expDate.getDate() - 1);
-            expDate.setMinutes(expDate.getMinutes() + 1);
-            hideExpireIso = expDate.toISOString();
-        }
-
-        try {
-            const oldDoc = await db.collection("users").doc(currentMemberCode).get();
-            if (oldDoc.exists) {
-                let userData = oldDoc.data();
-                userData.code = pendingEliteCode;
-                userData.isElite = true;
-                if (isHideChecked) {
-                    userData.isHidden = true;
-                    userData.hideExpireAt = hideExpireIso;
-                }
-                userData.points = (parseInt(userData.points) || 0) + addedPointsFromPackage;
-                userData.updatedAt = new Date().toISOString();
-                await db.collection("users").doc(pendingEliteCode).set(userData, { merge: true });
-            } else {
-                let newDocData = {
-                    code: pendingEliteCode,
-                    isElite: true,
-                    points: userPoints + addedPointsFromPackage,
-                    updatedAt: new Date().toISOString()
-                };
-                if (isHideChecked) {
-                    newDocData.isHidden = true;
-                    newDocData.hideExpireAt = hideExpireIso;
-                }
-                await db.collection("users").doc(pendingEliteCode).set(newDocData, { merge: true });
-            }
-        } catch(e) {}
-
-        setTimeout(() => {
-            isEliteMember = true;
-            userPoints += addedPointsFromPackage;
-            clockSecondsLeft = TIME_FREEZE_TINHHOA;
-            currentMemberCode = pendingEliteCode;
-            localStorage.setItem('last_logged_code', currentMemberCode);
-            updateMemberBadgeStyle(currentMemberCode);
-            document.getElementById('profile-member-code').innerText = currentMemberCode;
-            updatePointFloatingBadgeUI();
-
-            applyMemberSearchPermission();
-            
-            if (isHideChecked) {
-                alert(`🎉 Thanh toán gói Ẩn Hồ Sơ thành công! Hồ sơ của bạn đã được bảo vệ ẩn danh tuyệt đối.`);
-                showVipHiddenPopup();
-            } else {
-                alert(`🎉 Thanh toán thành công gói Tinh hoa cho mã (${currentMemberCode})!`);
-            }
-
-            showSection('search-section');
-            startVipHiddenPopupSchedule();
-        }, 1500);
     }
 
     let chatOptionsMenuTimer = null;
@@ -2628,49 +1810,11 @@ if(!uDoc.exists) {
         } catch(e) {}
     }
 
-    let vipHiddenPopupTimer = null;
-    let vipHiddenAutoCloseTimer = null;
-
-    function checkAndShowVipHiddenPopup() {
-        db.collection("users").doc(currentMemberCode).get().then(doc => {
-            if (doc.exists && doc.data().isHidden && isUserLoggedIn) {
-                showVipHiddenPopup();
-            }
-        }).catch(() => {});
-    }
-
-    function showVipHiddenPopup() {
-        const modal = document.getElementById('vip-hidden-popup');
-        if (modal) {
-            modal.classList.remove('hidden');
-            if (vipHiddenAutoCloseTimer) clearTimeout(vipHiddenAutoCloseTimer);
-            vipHiddenAutoCloseTimer = setTimeout(() => {
-                closeVipHiddenPopup();
-            }, 20000);
-        }
-    }
-
-    function closeVipHiddenPopup() {
-        const modal = document.getElementById('vip-hidden-popup');
-        if (modal) modal.classList.add('hidden');
-        if (vipHiddenAutoCloseTimer) clearTimeout(vipHiddenAutoCloseTimer);
-    }
-
-    function startVipHiddenPopupSchedule() {
-        if (vipHiddenPopupTimer) clearInterval(vipHiddenPopupTimer);
-        setTimeout(checkAndShowVipHiddenPopup, 3000);
-        vipHiddenPopupTimer = setInterval(checkAndShowVipHiddenPopup, 1200000);
-    }
-
     async function executeSelfDestruct() {
         if (!confirm("⚠️ CẢNH BÁO: Hồ sơ và các trò chuyện của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn?")) return;
         
         try {
             await db.collection("users").doc(currentMemberCode).delete();
-            if (currentMemberCode.startsWith("V")) {
-                let oldPCode = "P" + currentMemberCode.substring(1);
-                await db.collection("users").doc(oldPCode).delete();
-            }
         } catch(e) { console.error(e); }
 
         document.getElementById('hard-freeze-overlay').classList.add('hidden');
@@ -2678,64 +1822,36 @@ if(!uDoc.exists) {
         alert("Tài khoản đã bị xóa. Vui lòng tạo tài khoản mới.");
     }
 
-    // --- HÀM LẮNG NGHE TỰ ĐỘNG CẬP NHẬT TỪ SEPAY WEBHOOK (ĐÃ TÍCH HỢP CHO CẢ POINT VÀ NÂNG CẤP TINH HOA) ---
-let paymentListenerUnsubscribe = null;
+    // --- HÀM LẮNG NGHE TỰ ĐỘNG CẬP NHẬT TỪ SEPAY WEBHOOK ---
+    let paymentListenerUnsubscribe = null;
 
-function watchUserPointsForPayment(memberCode, oldPoints) {
-    if (paymentListenerUnsubscribe) paymentListenerUnsubscribe();
+    function watchUserPointsForPayment(memberCode, oldPoints) {
+        if (paymentListenerUnsubscribe) paymentListenerUnsubscribe();
 
-    paymentListenerUnsubscribe = db.collection("users").doc(memberCode).onSnapshot((doc) => {
-        if (doc.exists) {
-            let data = doc.data();
-            let currentCloudPoints = parseInt(data.points) || 0;
-            let isCloudElite = data.isElite || false;
+        paymentListenerUnsubscribe = db.collection("users").doc(memberCode).onSnapshot((doc) => {
+            if (doc.exists) {
+                let data = doc.data();
+                let currentCloudPoints = parseInt(data.points) || 0;
 
-            if (currentCloudPoints > oldPoints) {
-                userPoints = currentCloudPoints; 
-                if (isCloudElite) isEliteMember = true;
-                
-                let requiredPoints = currentMemberCode.startsWith("V") ? FEE_TINHHOA : FEE_PHOTHONG;
-
-                if (userPoints >= requiredPoints) {
+                if (currentCloudPoints > oldPoints) {
+                    userPoints = currentCloudPoints; 
+                    
                     document.getElementById('hard-freeze-overlay').classList.add('hidden');
-                    
-                    // Nạp đủ tiền -> Cấp lại chu kỳ ON bình thường dựa trên bộ biến số
-                    let addTime = currentMemberCode.startsWith("V") ? TIME_ON_V_REGULAR : TIME_ON1_P;
-                    let newExpire = new Date(new Date().getTime() + addTime);
+                    updatePointFloatingBadgeUI();
+                    closePointTopupModal();
 
-                    db.collection("users").doc(currentMemberCode).update({ 
-                        expireAt: newExpire.toISOString()
-                    }).catch(()=>{});
-
-                    clockSecondsLeft = currentMemberCode.startsWith("V") ? TIME_FREEZE_TINHHOA : TIME_FREEZE_PHOTHONG;
+                    alert(`🎉 Đã nhận thanh toán! Số dư mới của bạn là ${userPoints} Point.`);
                     
-                    if (!systemClockInterval || document.getElementById('hard-freeze-overlay').classList.contains('hidden')) {
-                        startSystemClockTicker();
+                    if (paymentListenerUnsubscribe) {
+                        paymentListenerUnsubscribe();
+                        paymentListenerUnsubscribe = null;
                     }
                 }
-                
-                updatePointFloatingBadgeUI();
-                
-                closePointTopupModal();
-                const eliteModal = document.getElementById('elite-payment-modal');
-                if (eliteModal) eliteModal.classList.add('hidden');
-                const checkoutSec = document.getElementById('checkout-section');
-                if (checkoutSec && !checkoutSec.classList.contains('hidden')) {
-                    checkoutSec.classList.add('hidden');
-                }
-
-                applyMemberSearchPermission();
-                showSection('search-section');
-                
-                if (paymentListenerUnsubscribe) {
-                    paymentListenerUnsubscribe();
-                    paymentListenerUnsubscribe = null;
-                }
             }
-        }
-    });
-}
-// ==========================================
+        });
+    }
+
+    // ==========================================
     // LOGIC TÍNH NĂNG TẠO NHÓM (GROUP CHAT)
     // ==========================================
     let tempGroupMembers = [];
@@ -2988,76 +2104,51 @@ function watchUserPointsForPayment(memberCode, oldPoints) {
             alert("❌ Lỗi khi thiết lập kết nối 1-1 đám mây!"); 
         }
     }
-    // SỬA HÀM GỬI TIN NHẮN ĐỂ PHÂN BIỆT RÕ CHAT 1-1 HAY CHAT NHÓM
-    async function sendTextMessage() {
-        if (!isUserLoggedIn || !currentMemberCode) {
-            alert("⚠️ Phiên làm việc đã kết thúc do bạn đã đăng xuất. Vui lòng đăng nhập lại!");
-            resetToLogin(); return;
-        }
 
-        const input = document.getElementById('chat-input-text');
-        const text = input.value.trim();
-        if (!text) return;
-        if (!activeChatPartnerCode && !activeGroupId) return; // Không ở phòng nào cả
+    // HÀM LÕI: KIỂM SOÁT GIAO DIỆN Ô NHẬP TIN NHẮN THEO QUYỀN HẠN
+    function applyChatPermissionsUI() {
+        const chatInput = document.getElementById('chat-input-text');
+        const sendBtn = chatInput.nextElementSibling; // Nút Gửi (Mũi tên)
+        const locationBtn = chatInput.previousElementSibling; // Nút Định vị
 
-        input.value = ""; // Clear ô chữ lập tức để tạo cảm giác mượt
+        let isAllowed = true; // Mặc định là được phép chat
 
-        // TRƯỜNG HỢP 1: GỬI TIN NHẮN NHÓM
+        // Nếu đang ở trong Nhóm, tiến hành kiểm tra luật của Nhóm
         if (activeGroupId) {
-            const groupKey = activeGroupFullData.groupKey;
-            
-            // [LOGIC GIAI ĐOẠN 3]: Kiểm tra quyền nhắn tin
             let mode = activeGroupFullData.messagingMode || 'free';
             let isCoAdmin = (activeGroupFullData.coAdmins || []).includes(currentMemberCode);
-            let isAllowed = false;
             
-            if (mode === 'free') isAllowed = true;
-            if (mode === 'admin_only' && (activeGroupFullData.adminCode === currentMemberCode || isCoAdmin)) isAllowed = true;
-            
-            if (!isAllowed) {
-                alert("🔇 Trưởng nhóm đã thiết lập chế độ Cấm ngôn. Bạn chỉ được phép xem tin nhắn.");
-                return;
-            }
-
-            try {
-                // Mã hóa bằng Chìa khóa nhóm
-                const encryptedText = CryptoJS.AES.encrypt(text, groupKey).toString();
-                await db.collection("groups").doc(activeGroupId).collection("messages").add({
-                    sender: currentMemberCode,
-                    text: encryptedText,
-                    type: "text",
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                // Cập nhật UpdateAt để Nhóm trồi lên đầu hộp thư
-                await db.collection("groups").doc(activeGroupId).update({ updatedAt: new Date().toISOString() });
-            } catch(e) {
-                alert("❌ Lỗi gửi tin nhắn nhóm.");
-            }
-        } 
-        // TRƯỜNG HỢP 2: GỬI TIN NHẮN 1-1 (CŨ)
-        else if (activeChatPartnerCode) {
-            resetChatActivityTimer();
-            const chatId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
-            const matchId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
-
-            try {
-                const encryptedText = CryptoJS.AES.encrypt(text, chatId).toString();
-                await db.collection("chats").doc(chatId).collection("messages").add({
-                    sender: currentMemberCode,
-                    text: encryptedText,
-                    type: "text",
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                await db.collection("matches").doc(matchId).update({
-                    lastSender: currentMemberCode,
-                    isRead: false,
-                    updatedAt: new Date().toISOString()
-                });
-            } catch(e) {
-                alert("❌ Lỗi gửi tin cá nhân.");
+            // Chỉ cấm ngôn nếu không phải Trưởng nhóm VÀ cũng không phải Phó nhóm
+            if (mode === 'admin_only' && activeGroupFullData.adminCode !== currentMemberCode && !isCoAdmin) {
+                isAllowed = false; 
             }
         }
+
+        if (isAllowed) {
+            // MỞ KHÓA: Khôi phục lại trạng thái thiết kế nguyên thủy
+            chatInput.disabled = false;
+            chatInput.placeholder = "Nhập tin nhắn...";
+            chatInput.classList.remove('opacity-50', 'bg-gray-100', 'cursor-not-allowed');
+            
+            sendBtn.disabled = false;
+            sendBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'grayscale');
+            
+            locationBtn.disabled = false;
+            locationBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'grayscale');
+        } else {
+            // KHÓA MỒM: Làm mờ ô nhập và các nút bấm, đổi dòng chữ thông báo
+            chatInput.disabled = true;
+            chatInput.placeholder = "Admin đang chọn chức năng mọi người chỉ được đọc";
+            chatInput.classList.add('opacity-50', 'bg-gray-100', 'cursor-not-allowed');
+            
+            sendBtn.disabled = true;
+            sendBtn.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+            
+            locationBtn.disabled = true;
+            locationBtn.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
+        }
     }
+
 // ==========================================
     // LOGIC CÀI ĐẶT QUẢN TRỊ NHÓM & PHÂN QUYỀN
     // ==========================================
@@ -3259,49 +2350,7 @@ function watchUserPointsForPayment(memberCode, oldPoints) {
         }
     }
 
-    // HÀM LÕI: KIỂM SOÁT GIAO DIỆN Ô NHẬP TIN NHẮN THEO QUYỀN HẠN
-    function applyChatPermissionsUI() {
-        const chatInput = document.getElementById('chat-input-text');
-        const sendBtn = chatInput.nextElementSibling; // Nút Gửi (Mũi tên)
-        const locationBtn = chatInput.previousElementSibling; // Nút Định vị
 
-        let isAllowed = true; // Mặc định là được phép chat
-
-        // Nếu đang ở trong Nhóm, tiến hành kiểm tra luật của Nhóm
-        if (activeGroupId) {
-            let mode = activeGroupFullData.messagingMode || 'free';
-            let isCoAdmin = (activeGroupFullData.coAdmins || []).includes(currentMemberCode);
-            
-            // Chỉ cấm ngôn nếu không phải Trưởng nhóm VÀ cũng không phải Phó nhóm
-            if (mode === 'admin_only' && activeGroupFullData.adminCode !== currentMemberCode && !isCoAdmin) {
-                isAllowed = false; 
-            }
-        }
-
-        if (isAllowed) {
-            // MỞ KHÓA: Khôi phục lại trạng thái thiết kế nguyên thủy
-            chatInput.disabled = false;
-            chatInput.placeholder = "Nhập tin nhắn...";
-            chatInput.classList.remove('opacity-50', 'bg-gray-100', 'cursor-not-allowed');
-            
-            sendBtn.disabled = false;
-            sendBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'grayscale');
-            
-            locationBtn.disabled = false;
-            locationBtn.classList.remove('opacity-40', 'cursor-not-allowed', 'grayscale');
-        } else {
-            // KHÓA MỒM: Làm mờ ô nhập và các nút bấm, đổi dòng chữ thông báo
-            chatInput.disabled = true;
-            chatInput.placeholder = "Admin đang chọn chức năng mọi người chỉ được đọc";
-            chatInput.classList.add('opacity-50', 'bg-gray-100', 'cursor-not-allowed');
-            
-            sendBtn.disabled = true;
-            sendBtn.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
-            
-            locationBtn.disabled = true;
-            locationBtn.classList.add('opacity-40', 'cursor-not-allowed', 'grayscale');
-        }
-    }
 // CHẶN CHUỘT PHẢI VÀ PHÍM TẮT XEM MÃ NGUỒN
     document.addEventListener('contextmenu', event => event.preventDefault());
 
@@ -3669,229 +2718,6 @@ function toggleCam() {
     </div>
 </div>
 
-<div id="elite-payment-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-md w-full border-2 border-amber-400 relative text-sm">
-        <button onclick="closeEliteModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-        <div class="text-center mb-5">
-            <div class="w-14 h-14 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-lg"><i class="fa-solid fa-crown text-2xl text-white"></i></div>
-            <h3 class="text-lg font-black text-gray-900">Đặc quyền Thành viên Tinh hoa</h3>
-            <p id="countdown-timer" class="text-xs text-rose-600 font-bold mt-1.5">⏱️ Tự động đóng sau 10 giây...</p>
-        </div>
-        <div class="space-y-3 mb-5 text-xs">
-            <label class="block bg-amber-50/60 p-3 rounded-2xl border border-amber-200 cursor-pointer">
-                <div class="flex items-center gap-2.5">
-                    <input type="checkbox" id="opt-base" checked onchange="calculateTotal()" class="w-4 h-4 text-amber-600 rounded">
-                    <div class="flex-1 flex justify-between items-center">
-                        <span class="font-bold text-amber-900">Quyền truy cập Tinh hoa</span>
-                        <span id="price-base-display" class="font-black text-rose-600">1.500.000đ/tháng</span>
-                    </div>
-                </div>
-            </label>
-            <label class="block bg-amber-50/40 p-3 rounded-2xl border border-amber-200 cursor-pointer">
-                <div class="flex items-center gap-2.5">
-                    <input type="checkbox" id="opt-hide" onchange="calculateTotal()" class="w-4 h-4 text-amber-600 rounded">
-                    <div class="flex-1 flex justify-between items-center">
-                        <span class="font-bold text-gray-900">Tùy chọn Ẩn Hồ sơ</span>
-                        <span id="price-hide-display" class="font-black text-rose-600">+10.000.000đ</span>
-                    </div>
-                </div>
-                <p class="text-[11px] text-amber-800 font-semibold mt-1 italic">💡 Thành viên V có thể quy đổi 10.000 points để mua gói dịch vụ.</p>
-            </label>
-        </div>
-        <div class="border-t pt-3 mb-5 flex justify-between items-center text-xs">
-            <span class="font-bold text-gray-700">Tổng thanh toán:</span>
-            <span id="total-price" class="text-2xl font-black text-rose-600">1.500.000đ/tháng</span>
-        </div>
-        <button id="elite-action-btn" onclick="goToPaymentCheckout()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-bold rounded-xl shadow text-sm hover:brightness-110 transition">
-            Thanh toán (VietQR / Quốc tế USD)
-        </button>
-    </div>
-</div>
-
-<section id="checkout-section" class="hidden space-y-5 text-xs">
-    <div class="bg-white/90 p-3.5 rounded-2xl shadow border border-rose-200 flex justify-between items-center">
-        <div class="flex items-center gap-1.5"><span class="w-6 h-6 rounded-full bg-emerald-500 text-white font-black flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></span><span class="font-bold text-gray-700">1. Đã tạo đơn</span></div>
-        <div class="h-1 flex-1 bg-rose-200 mx-2 rounded-full overflow-hidden"><div id="progress-bar" class="h-full bg-rose-500 w-1/2 transition-all"></div></div>
-        <div class="flex items-center gap-1.5"><span id="step-2-icon" class="w-6 h-6 rounded-full bg-rose-600 text-white font-black flex items-center justify-center text-xs">2</span><span id="step-2-text" class="font-bold text-rose-600">2. Chờ chuyển khoản</span></div>
-    </div>
-    <div class="flex justify-center gap-2">
-        <button onclick="switchCheckoutCurrency('VND')" id="btn-chk-vnd" class="px-4 py-1.5 bg-rose-600 text-white font-bold rounded-lg text-xs">VietQR (VNĐ)</button>
-        <button onclick="switchCheckoutCurrency('USD')" id="btn-chk-usd" class="px-4 py-1.5 bg-gray-100 text-gray-700 font-bold rounded-lg text-xs">Top-up Account Points (USD)</button>
-    </div>
-   <div id="checkout-vnd-panel" class="bg-white p-5 rounded-3xl shadow-xl border border-rose-200 text-center flex flex-col items-center">
-        <div class="p-2 bg-white rounded-2xl border-2 border-rose-300 shadow-inner mb-4">
-            <img id="vietqr-img" src="" alt="Mã QR" class="w-48 h-48 object-contain rounded-xl">
-        </div>
-        <div class="w-full space-y-2 border-t pt-3 text-left text-xs">
-            <div class="flex justify-between items-center border-b pb-1">
-                <span class="text-gray-500">Số tài khoản (MBBank):</span>
-                <div class="flex items-center gap-2">
-                    <span class="font-black text-rose-600 text-sm">0917719989</span>
-                    <button type="button" onclick="copyToClipboard('0917719989', this)" class="px-2 py-0.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold rounded text-[10px] border border-rose-300"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-            </div>
-            <div class="flex justify-between border-b pb-1"><span class="text-gray-500">Số tiền:</span><span id="checkout-amount" class="font-black text-emerald-600 text-sm">1.500.000đ</span></div>
-            <div class="flex justify-between items-center bg-rose-50 p-2.5 rounded-xl border border-rose-200">
-                <span class="text-gray-600 font-bold">Nội dung:</span>
-                <div class="flex items-center gap-2">
-                    <span id="checkout-memo" class="font-black text-rose-700">...</span>
-                    <button type="button" onclick="copyToClipboard(document.getElementById('checkout-memo').innerText, this)" class="px-2 py-0.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded text-[10px] shadow"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="checkout-usd-panel" class="hidden bg-white p-5 rounded-3xl shadow-xl border border-amber-300 text-center flex flex-col items-center space-y-3">
-        <div class="w-full space-y-2 border-t pt-3 text-left text-xs bg-amber-50 p-3.5 rounded-2xl border border-amber-200">
-            <div class="flex justify-between items-center border-b pb-1">
-                <span class="text-gray-600">PingPong USD (Deutsche Bank):</span>
-                <div class="flex items-center gap-2">
-                    <span class="font-black text-amber-800 text-sm">00395823000189272</span>
-                    <button type="button" onclick="copyToClipboard('00395823000189272', this)" class="px-2 py-0.5 bg-amber-200 hover:bg-amber-300 text-amber-900 font-bold rounded text-[10px] border border-amber-400"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-            </div>
-            <div class="flex justify-between border-b pb-1"><span class="text-gray-600">Số tiền USD:</span><span id="checkout-usd-amount" class="font-black text-emerald-600 text-sm">$59.05 USD</span></div>
-            <div class="flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-300">
-                <span class="text-gray-600 font-bold">Transfer Memo:</span>
-                <div class="flex items-center gap-2">
-                    <span id="checkout-usd-memo" class="font-black text-amber-900">PP149UM75-248USD2</span>
-                    <button type="button" onclick="copyToClipboard(document.getElementById('checkout-usd-memo').innerText, this)" class="px-2 py-0.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded text-[10px] shadow"><i class="fa-regular fa-copy"></i> Copy</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="w-full p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 text-center space-y-2 shadow-sm">
-        <div class="flex items-center justify-center gap-2 text-amber-900 font-extrabold text-xs">
-            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
-            <span>Chờ đối soát giao dịch tự động</span>
-        </div>
-        <p class="text-[11px] text-gray-600 leading-relaxed">
-            Gói dịch vụ sẽ tự động kích hoạt ngay sau khi chuyển khoản thành công.
-        </p>
-    </div>
-</section>
-
-<!-- MODAL TẠO NHÓM CHAT (GROUP CHAT) -->
-<div id="create-group-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden flex items-center justify-center p-4">
-    <div class="bg-white p-5 rounded-3xl shadow-2xl max-w-sm w-full border-2 border-amber-300 relative text-sm space-y-4 max-h-[85vh] flex flex-col">
-        <button onclick="closeCreateGroupModal()" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm transition"><i class="fa-solid fa-xmark"></i></button>
-        <div class="text-center pb-2 border-b border-gray-100">
-            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl mb-2 shadow-inner">
-                <i class="fa-solid fa-user-group"></i>
-            </div>
-            <h3 class="font-black text-gray-900 text-base">Tạo Nhóm Làm Việc</h3>
-        </div>
-        
-        <div class="space-y-3 overflow-y-auto flex-1 p-1 pr-2 custom-scrollbar">
-            <div>
-                <label class="block font-bold text-gray-700 mb-1 text-xs">Tên nhóm hiển thị:</label>
-                <input type="text" id="create-group-name" placeholder="VD: Phòng Kinh Doanh..." class="w-full px-3.5 py-2.5 rounded-xl border border-amber-200 bg-amber-50/50 font-bold text-gray-900 outline-none">
-            </div>
-            
-            <div class="p-3 bg-gray-50 rounded-2xl border border-gray-200 space-y-2">
-                <label class="block font-bold text-gray-700 text-xs">Thêm thành viên (Bằng Mã):</label>
-                <div class="flex gap-2">
-                    <input type="text" id="create-group-member-input" oninput="this.value = this.value.toUpperCase()" placeholder="Mã nhân viên (VD: P123...)" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-bold text-xs uppercase outline-none">
-                    <button type="button" onclick="addMemberToTempGroup()" class="px-3 py-2 bg-gray-800 text-white font-bold rounded-xl text-xs hover:bg-gray-700"><i class="fa-solid fa-plus"></i> Add</button>
-                </div>
-                <div id="temp-group-members-list" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto">
-                    <!-- Danh sách thành viên sẽ hiện ở đây -->
-                </div>
-            </div>
-        </div>
-
-        <div class="pt-2 border-t border-gray-100 mt-auto">
-            <button onclick="submitCreateGroup()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-black rounded-xl shadow-md hover:brightness-110 transition text-sm">
-                Xác nhận Tạo Nhóm
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL QUẢN LÝ TỔNG HỢP NHÓM -->
-<div id="group-settings-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999] hidden flex items-center justify-center p-4">
-    <div class="bg-white p-5 rounded-3xl shadow-2xl max-w-sm w-full border-2 border-amber-300 relative text-sm space-y-4 max-h-[90vh] flex flex-col">
-        <button onclick="document.getElementById('group-settings-modal').classList.add('hidden')" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 flex items-center justify-center text-sm transition"><i class="fa-solid fa-xmark"></i></button>
-        
-        <div class="text-center pb-2 border-b border-gray-100 shrink-0">
-            <div class="w-12 h-12 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto text-xl mb-2 shadow-inner">
-                <i class="fa-solid fa-users-gear"></i>
-            </div>
-            <h3 class="font-black text-gray-900 text-base">Quản lý Nhóm</h3>
-        </div>
-        
-        <div class="overflow-y-auto flex-1 space-y-4 pr-1 custom-scrollbar">
-            <!-- 1. Cài đặt quyền chat (Chỉ Admin mới thấy khu vực này) -->
-            <div id="admin-settings-section" class="space-y-2 hidden bg-amber-50 p-3 rounded-2xl border border-amber-200">
-                <label class="block font-bold text-amber-900 text-xs">Chọn chế độ:</label>
-                <select id="setting-messaging-mode" class="w-full px-3 py-2.5 rounded-xl border border-amber-300 bg-white font-bold text-amber-950 outline-none text-xs">
-                    <option value="free">Tất cả được nhắn tin</option>
-                    <option value="admin_only">Chỉ Quản lý & Admin</option>
-                </select>
-            </div>
-
-            <!-- 2. Thêm thành viên (Admin và Phó Nhóm thấy) -->
-            <div id="add-member-section" class="space-y-2 hidden border-t border-gray-100 pt-3">
-                <label class="block font-bold text-gray-700 text-xs">Thêm thành viên:</label>
-                <div class="flex gap-2">
-                    <input type="text" id="setting-add-member-input" oninput="this.value = this.value.toUpperCase()" placeholder="VD: P123..." class="flex-1 px-3 py-2 rounded-xl border border-gray-300 font-bold text-xs uppercase outline-none">
-                    <button type="button" onclick="addNewMemberToGroup()" class="px-3 py-2 bg-amber-600 text-white font-bold rounded-xl text-xs hover:bg-amber-700 shadow-sm"><i class="fa-solid fa-user-plus"></i> Add</button>
-                </div>
-            </div>
-
-            <!-- 3. Danh sách thành viên (Ai cũng thấy, nhưng nút thao tác bên trong sẽ ẩn/hiện tùy quyền) -->
-            <div class="space-y-2 border-t border-gray-100 pt-3">
-                <label class="block font-bold text-gray-700 text-xs flex justify-between items-center">
-                    <span>Thành viên:</span>
-                    <span id="group-member-count" class="text-[10px] text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full font-black">0 thành viên</span>
-                </label>
-                <div id="group-active-members-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                    <!-- Javascript sẽ nhồi danh sách người vào đây -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Nút lưu cài đặt (Chỉ Admin thấy) và Đóng (Ai cũng thấy) -->
-        <div class="pt-3 border-t border-gray-100 mt-auto shrink-0 flex gap-2">
-            <button id="btn-save-group-settings" onclick="saveGroupSettings()" class="hidden flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-black rounded-xl shadow-md hover:brightness-110 transition text-sm">
-                Lưu Cài Đặt
-            </button>
-            <button onclick="document.getElementById('group-settings-modal').classList.add('hidden')" class="flex-1 py-2.5 bg-gray-100 text-gray-700 font-black rounded-xl shadow-sm hover:bg-gray-200 transition text-sm">
-                Đóng
-            </button>
-        </div>
-    </div>
-</div>
-<!-- ========================================== -->
-<!-- GIAO DIỆN CUỘC GỌI WEBRTC 1-1 -->
-<!-- ========================================== -->
-
-<!-- 1. POPUP ĐỔ CHUÔNG (INCOMING CALL) -->
-<div id="call-ringing-modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4" style="z-index: 99999;">
-    <div class="bg-white p-6 rounded-3xl shadow-2xl max-w-sm w-full text-center flex flex-col items-center border border-gray-100">
-        <!-- Hiệu ứng Avatar rung (Ringing effect) -->
-        <div class="relative w-24 h-24 mb-4 flex items-center justify-center">
-            <div class="absolute inset-0 bg-amber-400 rounded-full animate-ping opacity-60"></div>
-            <div class="relative w-20 h-20 bg-amber-100 rounded-full border-4 border-white shadow-md flex items-center justify-center text-4xl text-amber-500 z-10">
-                <i class="fa-solid fa-user"></i>
-            </div>
-        </div>
-        
-        <h3 id="caller-name-display" class="font-black text-xl text-gray-900 mb-1">Ai đó</h3>
-        <p id="call-type-display" class="text-sm font-bold text-gray-500 mb-8">Đang gọi Video cho bạn...</p>
-        
-        <div class="flex gap-8 w-full justify-center">
-            <button onclick="rejectCall()" class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 shadow-sm hover:bg-rose-200 transition flex items-center justify-center text-2xl">
-                <i class="fa-solid fa-phone-slash"></i>
-            </button>
-            <button id="btn-accept-call" onclick="acceptCall()" class="w-14 h-14 rounded-full bg-emerald-500 text-white shadow-lg animate-bounce hover:bg-emerald-600 transition flex items-center justify-center text-2xl">
-                <i class="fa-solid fa-phone"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-
-<!-- FOOTER GÃY GỌN (ĐÃ GỎI BỎ EMAIL, LIÊN HỆ QUẢN TRỊ & ỦY QUYỀN) -->
 <footer id="site-footer" class="max-w-full w-full px-2 mx-auto w-full bg-rose-900 text-white/90 py-8 px-4 relative z-10 mt-12 rounded-t-3xl shadow-xl border-t border-rose-800 text-xs" translate="no">
     <div class="space-y-6 mb-6">
         <div>
@@ -3916,19 +2742,6 @@ function toggleCam() {
         © 2026 NhanCong.net. Tất cả các quyền được bảo lưu.
     </div>
 </footer>
-
-<!-- POPUP VIP HIDDEN MEMBER (Màu đen bạch kim trên nền vàng ánh kim) -->
-<div id="vip-hidden-popup" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] hidden flex items-center justify-center p-4">
-    <div class="bg-gradient-to-br from-slate-950 via-gray-900 to-slate-900 p-6 rounded-3xl shadow-[0_0_50px_rgba(251,191,36,0.3)] max-w-sm w-full border-2 border-amber-300 text-center relative space-y-3.5">
-        <button onclick="closeVipHiddenPopup()" class="absolute top-3.5 right-3.5 w-7 h-7 rounded-full bg-slate-900 text-amber-200 hover:text-white border border-amber-400/50 flex items-center justify-center text-xs shadow"><i class="fa-solid fa-xmark"></i></button>
-        <div class="w-14 h-14 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-lg text-gray-950 mt-1">
-            <i class="fa-solid fa-crown"></i>
-        </div>
-        <h3 class="font-black text-base bg-gradient-to-r from-amber-200 via-yellow-100 to-slate-200 bg-clip-text text-transparent tracking-wide uppercase">You are VIP member & was hidden!</h3>
-        <p class="text-xs text-amber-100/80 font-medium leading-relaxed">Hồ sơ độc tôn của bạn đang được bảo vệ ẩn danh tuyệt đối trên hệ thống đám mây.</p>
-        <button onclick="closeVipHiddenPopup()" class="w-full py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:brightness-110 text-gray-950 font-black rounded-xl text-xs shadow-lg transition">Đã hiểu & Trải nghiệm</button>
-    </div>
-</div>
 
 </body>
 </html>
