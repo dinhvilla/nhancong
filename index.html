@@ -229,7 +229,7 @@
 
         <form onsubmit="saveProfile(event)" id="profile-slides-form" class="space-y-4 text-sm" novalidate>
             <div class="profile-slide space-y-3" data-slide="1">
-                <div><input type="text" id="profile-nickname" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Tên cá nhân/Tên đơn vị (Bắt buộc)"></div>
+                <div><input type="text" id="profile-nickname" required maxlength="25" oninput="this.value = this.value.replace(/[0-9]/g, '')" class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Tên cá nhân/Tên đơn vị (Bắt buộc)"></div>
                 <div>
                     <select id="profile-gender" required class="w-full px-3 py-3 rounded-xl outline-none">
                         <option value="" disabled selected>Chọn giới tính</option>
@@ -239,15 +239,15 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <input type="number" id="profile-age" required min="18" max="99" class="w-1/3 px-3 py-3 rounded-xl outline-none font-bold" placeholder="Tuổi">
+                    <input type="number" id="profile-age" required min="18" max="99" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);" class="w-1/3 px-3 py-3 rounded-xl outline-none font-bold" placeholder="Tuổi">
                     <input type="text" id="profile-address" required class="flex-1 px-3 py-3 rounded-xl outline-none" placeholder="Địa chỉ (VD: Đống Đa, Hà Nội)">
                 </div>
             </div>
 
             <div class="profile-slide hidden space-y-3" data-slide="2">
                 <div class="flex gap-2">
-                    <input type="number" id="profile-height" required min="130" max="220" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Chiều cao (cm)">
-                    <input type="number" id="profile-weight" required min="35" max="150" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Cân nặng (kg)">
+                    <input type="number" id="profile-height" required min="130" max="200" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Chiều cao (cm)">
+                    <input type="number" id="profile-weight" required min="35" max="75" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);" class="w-1/2 px-3 py-3 rounded-xl outline-none" placeholder="Cân nặng (kg)">
                 </div>
                 <div>
                     <select id="profile-profession" required class="w-full px-3 py-3 rounded-xl outline-none bg-white font-semibold text-rose-900 border border-rose-200">
@@ -265,7 +265,7 @@
                     </select>
                 </div>
                 <div><input type="text" id="profile-experience" required class="w-full px-3 py-3 rounded-xl outline-none" placeholder="Kinh nghiệm & Tay nghề (VD: 5 năm thợ mộc)"></div>
-                <div><input type="number" id="profile-quantity" required min="1" max="50" value="1" class="w-full px-3 py-3 rounded-xl outline-none font-bold text-rose-700" placeholder="Số lượng (ghi 1 nếu bản thân hoặc số thực tế nếu là nhóm)"></div>
+                <div><input type="number" id="profile-quantity" required min="1" max="50" value="1" oninput="if(this.value.length > 2) this.value = this.value.slice(0, 2);" class="w-full px-3 py-3 rounded-xl outline-none font-bold text-rose-700" placeholder="Số lượng (ghi 1 nếu bản thân hoặc số thực tế nếu là nhóm)"></div>
             </div>
 
             <div class="profile-slide hidden space-y-3" data-slide="3">
@@ -2747,11 +2747,9 @@ function toggleCam() {
         <div class="bg-rose-50 p-3.5 rounded-2xl border border-rose-200 space-y-2 text-xs text-gray-700">
             <p><strong>Tuổi:</strong> <span id="modal-partner-age">-</span></p>
             <p><strong>Lĩnh vực:</strong> <span id="modal-partner-profession" class="font-bold text-rose-700">-</span></p>
-            <p><strong>Kinh nghiệm:</strong> <span id="modal-partner-exp" class="font-bold text-gray-900">-</span></p>
             <p><strong>Trình độ & Kinh nghiệm:</strong> <span id="modal-partner-looksedu">-</span></p>
             <p><strong>Giá nhân công:</strong> <span id="modal-partner-price" class="font-black text-emerald-600">-</span></p>
             <p><strong>Số lượng:</strong> <span id="modal-partner-quantity">-</span></p>
-            <p><strong>Địa chỉ:</strong> <span id="modal-partner-address">-</span></p>
             <p><strong>Chiều cao/Cân nặng:</strong> <span id="modal-partner-height">-</span></p>
         </div>
         <button onclick="closePartnerProfileModal()" class="w-full py-2.5 bg-rose-600 text-white font-bold rounded-xl text-xs shadow">Đóng hồ sơ</button>
