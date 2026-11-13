@@ -1683,25 +1683,6 @@
         const looksEduVal = document.getElementById('profile-looks-edu').value;
         
         let oldMemberCode = currentMemberCode; 
-        let isCodeUnique = false;
-
-        // Vòng lặp kiểm tra mã trùng lặp
-        while (!isCodeUnique) {
-            try {
-                let checkDoc = await db.collection("users").doc(currentMemberCode).get();
-                if (checkDoc.exists) {
-                    if (isUserLoggedIn && currentMemberCode === oldMemberCode) {
-                        isCodeUnique = true;
-                    } else {
-                        currentMemberCode = generateUniqueMemberCode();
-                    }
-                } else {
-                    isCodeUnique = true;
-                }
-            } catch(e) {
-                isCodeUnique = true; 
-            }
-        }
 
         // Khởi tạo giá trị mặc định cho GPS nếu chưa có
         let finalLat = typeof userLatitude !== 'undefined' ? userLatitude : 21.0285;
@@ -1729,13 +1710,16 @@
         };
 
         try {
+            // 1. Chỉ đưa mật khẩu vào Auth nếu là ĐĂNG KÝ MỚI hoặc vừa ĐỔI MÃ
             if (!isUserLoggedIn || oldMemberCode !== currentMemberCode) {
                 const fakeEmail = currentMemberCode + "@seeing.love";
                 await firebase.auth().createUserWithEmailAndPassword(fakeEmail, newPass.trim());
             }
 
+            // 2. Lưu hồ sơ sạch lên Firestore
             await db.collection("users").doc(currentMemberCode).set(profileObj);
 
+            // [ĐỒNG BỘ CHAT BẢO LƯU CHO CA ĐỔI MÃ]
             if (isUserLoggedIn && oldMemberCode !== currentMemberCode) {
                 const matchesSnap = await db.collection("matches").where("members", "array-contains", oldMemberCode).get();
                 const batch = db.batch();
@@ -1746,6 +1730,7 @@
                 });
                 await batch.commit();
                 
+                // Cập nhật giao diện phòng chat hiện tại nếu bạn đang mở dở
                 if (activeChatPartnerCode) {
                     document.getElementById('profile-member-code').innerText = currentMemberCode;
                 }
@@ -1762,13 +1747,14 @@
             document.getElementById('logout-btn').classList.remove('hidden');
             document.getElementById('logout-btn').classList.add('flex');
             document.getElementById('bottom-nav').classList.remove('hidden');
-            document.getElementById('point-floating-badge').classList.remove('hidden');
+            
+            // Xóa gọi sai hàm updatePointFloatingBadgeUI() ở đây
+            let badgeElem = document.getElementById('point-floating-badge');
+            if (badgeElem && !userManuallyClosedClock) badgeElem.classList.remove('hidden');
             
             const authBtn = document.getElementById('auth-btn');
             authBtn.innerText = "Hồ sơ của tôi";
             authBtn.onclick = () => showSection('profile-section');
-            
-            updatePointFloatingBadgeUI();
             
             alert(`✅ Đã lưu hồ sơ bảo mật thành công!\nMã thành viên: ${currentMemberCode}`);
             
@@ -1776,7 +1762,11 @@
             
         } catch(e) {
             console.error("Lỗi đăng ký:", e);
-            alert("❌ Không thể đăng ký: " + e.message);
+            if(e.code === 'auth/email-already-in-use'){
+                 alert("❌ Mã bảo mật vô tình bị trùng trên đám mây. Vui lòng bấm Đăng ký lại 1 lần nữa!");
+            } else {
+                 alert("❌ Không thể đăng ký: " + e.message);
+            }
         }
     }
 
