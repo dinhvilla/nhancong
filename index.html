@@ -1635,7 +1635,7 @@
     function handleCreateNewAccount() {
         currentMemberCode = generateUniqueMemberCode();
         localStorage.setItem('last_logged_code', currentMemberCode);
-        userPoints = FEE_PHOTHONG;
+        userPoints = 0; // Tài khoản mới được tạo có 0 điểm
         
         document.getElementById('profile-nickname').value = "";
         document.getElementById('profile-gender').value = "";
