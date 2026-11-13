@@ -336,7 +336,7 @@
         <div id="main-search-wrapper" class="bg-white/95 p-5 rounded-3xl shadow-lg border-2 border-rose-200 space-y-3 text-sm">
             <div class="pb-2.5 border-b border-rose-100 flex justify-between items-center">
                 <h2 class="font-black text-gray-900 flex items-center gap-1.5 text-base">
-                    <i class="fa-solid fa-users text-rose-600"></i> Tìm kiếm Nhân công
+                    <i class="fa-solid fa-nhancong_users text-rose-600"></i> Tìm kiếm Nhân công
                 </h2>
             </div>
             <div class="filter-slide-p space-y-3" data-filter-slide="1">
@@ -713,7 +713,7 @@
         if (!targetCode) { alert("Vui lòng nhập mã thành viên cần khôi phục!"); return; }
 
         try {
-            const doc = await db.collection("users").doc(targetCode).get();
+            const doc = await db.collection("nhancong_users").doc(targetCode).get();
             if (!doc.exists) {
                 alert("❌ Không tìm thấy mã thành viên này trên đám mây!");
                 return;
@@ -839,7 +839,7 @@
 
     async function loadProfileDataFromCloud(code) {
         try {
-            const docRef = db.collection("users").doc(code);
+            const docRef = db.collection("nhancong_users").doc(code);
             const doc = await docRef.get();
             if (doc.exists) {
                 const data = doc.data();
@@ -1019,7 +1019,7 @@
         container.innerHTML = `<div class="text-center py-6 text-rose-600 font-bold"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang tải dữ liệu từ đám mây...</div>`;
 
         try {
-            const snapshot = await db.collection("users").get();
+            const snapshot = await db.collection("nhancong_users").get();
             let cloudCandidates = [];
             snapshot.forEach(doc => {
                 let data = doc.data();
@@ -1093,7 +1093,7 @@
             // TRỪ POINT SAU KHI TÌM KIẾM THÀNH CÔNG VÀ CÓ KẾT QUẢ
             userPoints -= 2;
             updatePointFloatingBadgeUI();
-            db.collection("users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
+            db.collection("nhancong_users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
             
             // Xóa alert phiền phức để UX mượt hơn
             // alert("Đã trừ 2 Point cho lượt tìm kiếm này.");
@@ -1148,7 +1148,7 @@
             // Trừ point sau khi kết nối thành công
             userPoints -= 5;
             updatePointFloatingBadgeUI();
-            db.collection("users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
+            db.collection("nhancong_users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
 
             alert(`✅ Mở khóa thành công! Hãy vào Hộp thư để trò chuyện với ${partnerName}.`);
         } catch(e) {
@@ -1171,7 +1171,7 @@
                 let data = docSnap.data();
                 let otherCode = data.members.find(m => m !== currentMemberCode);
                 if (otherCode) {
-                    let userDoc = await db.collection("users").doc(otherCode).get();
+                    let userDoc = await db.collection("nhancong_users").doc(otherCode).get();
                     if (userDoc.exists) {
                         let uData = userDoc.data();
                         chatItems.push({
@@ -1205,11 +1205,11 @@
                         <div onclick='openGroupChatRoom("${item.id}", ${JSON.stringify(item.fullData).replace(/'/g, "&#39;")})' class="p-3 bg-amber-50/40 hover:bg-amber-100/60 rounded-2xl border-2 border-amber-200 flex items-center justify-between cursor-pointer transition shadow-sm mb-2.5">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-white text-xl shadow-inner border border-amber-600/30">
-                                    <i class="fa-solid fa-users"></i>
+                                    <i class="fa-solid fa-nhancong_users"></i>
                                 </div>
                                 <div>
                                     <h4 class="font-black text-amber-950 text-sm flex items-center gap-1.5">${item.name} ${roleTag}</h4>
-                                    <p class="text-[11px] text-amber-700 font-bold mt-0.5"><i class="fa-solid fa-users-viewfinder"></i> ${item.membersCount} thành viên</p>
+                                    <p class="text-[11px] text-amber-700 font-bold mt-0.5"><i class="fa-solid fa-nhancong_users-viewfinder"></i> ${item.membersCount} thành viên</p>
                                 </div>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-amber-500"><i class="fa-solid fa-chevron-right text-sm"></i></div>
@@ -1634,7 +1634,7 @@
             await firebase.auth().signInWithEmailAndPassword(fakeEmail, inputPass);
 
             // 2. Nếu Auth xác nhận đúng, mới kéo dữ liệu từ Firestore
-            const docRef = db.collection("users").doc(inputCode);
+            const docRef = db.collection("nhancong_users").doc(inputCode);
             const doc = await docRef.get();
 
             if (doc.exists) {
@@ -1718,7 +1718,7 @@
         // 1. Vòng lặp kiểm tra mã trùng lặp an toàn
         while (!isCodeUnique) {
             try {
-                let checkDoc = await db.collection("users").doc(currentMemberCode).get();
+                let checkDoc = await db.collection("nhancong_users").doc(currentMemberCode).get();
                 if (checkDoc.exists) {
                     if (isUserLoggedIn && currentMemberCode === oldMemberCode) {
                         isCodeUnique = true;
@@ -1776,7 +1776,7 @@
             }
 
             // 3. Ghi dữ liệu lên Firestore
-            await db.collection("users").doc(currentMemberCode).set(profileObj, { merge: true });
+            await db.collection("nhancong_users").doc(currentMemberCode).set(profileObj, { merge: true });
 
             // 4. Đồng bộ Chat nếu đổi mã
             if (isUserLoggedIn && oldMemberCode !== currentMemberCode) {
@@ -1908,7 +1908,7 @@
         if (!confirm("⚠️ CẢNH BÁO: Hồ sơ và các trò chuyện của bạn sẽ bị xóa vĩnh viễn. Bạn có chắc chắn?")) return;
         
         try {
-            await db.collection("users").doc(currentMemberCode).delete();
+            await db.collection("nhancong_users").doc(currentMemberCode).delete();
         } catch(e) { console.error(e); }
 
         document.getElementById('hard-freeze-overlay').classList.add('hidden');
@@ -1922,7 +1922,7 @@
     function watchUserPointsForPayment(memberCode, oldPoints) {
         if (paymentListenerUnsubscribe) paymentListenerUnsubscribe();
 
-        paymentListenerUnsubscribe = db.collection("users").doc(memberCode).onSnapshot((doc) => {
+        paymentListenerUnsubscribe = db.collection("nhancong_users").doc(memberCode).onSnapshot((doc) => {
             if (doc.exists) {
                 let data = doc.data();
                 let currentCloudPoints = parseInt(data.points) || 0;
@@ -1981,7 +1981,7 @@
         btnElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
         
         try {
-            const doc = await db.collection("users").doc(code).get();
+            const doc = await db.collection("nhancong_users").doc(code).get();
             if (doc.exists) {
                 tempGroupMembers.push(code);
                 inputElem.value = '';
@@ -2067,7 +2067,7 @@
         
         // Đổi giao diện thanh tiêu đề (Avatar và Tên)
         document.getElementById('chat-room-name').innerText = activeGroupFullData.groupName || "Nhóm Chat";
-        document.getElementById('chat-room-partner-code').innerHTML = `<i class="fa-solid fa-users"></i> ${activeGroupFullData.members ? activeGroupFullData.members.length : 0} thành viên`;
+        document.getElementById('chat-room-partner-code').innerHTML = `<i class="fa-solid fa-nhancong_users"></i> ${activeGroupFullData.members ? activeGroupFullData.members.length : 0} thành viên`;
         
         // Tạm dùng icon mặc định cho nhóm (chưa hỗ trợ upload ảnh nhóm)
         let avt = "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeGroupFullData.groupName || "G") + "&background=fbbf24&color=fff";
@@ -2098,13 +2098,13 @@
         
         if (activeGroupFullData.adminCode === currentMemberCode) {
             dropMenu.innerHTML = `
-                <button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-users-gear"></i> Quản lý Nhóm</button>
+                <button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-nhancong_users-gear"></i> Quản lý Nhóm</button>
                 <button onclick="event.stopPropagation(); deleteGroupChat();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-red-600 font-bold flex items-center gap-2"><i class="fa-solid fa-trash-can"></i> Giải tán Nhóm</button>
             `;
         } else {
             // Phó nhóm vẫn được cấp nút Quản lý để thao tác Thêm/Xóa nhân sự, Nhân viên thì trắng tay
             let manageBtnHtml = isCoAdmin ? 
-                `<button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-users-gear"></i> Quản lý Nhóm</button>` : ``;
+                `<button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-nhancong_users-gear"></i> Quản lý Nhóm</button>` : ``;
             
             dropMenu.innerHTML = `
                 ${manageBtnHtml}
@@ -2180,7 +2180,7 @@
             const matchId = getCoreMatchId(currentMemberCode, targetCode);
             const matchDoc = await db.collection("matches").doc(matchId).get();
             
-            let partnerDoc = await db.collection("users").doc(targetCode).get();
+            let partnerDoc = await db.collection("nhancong_users").doc(targetCode).get();
             let pData = partnerDoc.exists ? partnerDoc.data() : { code: targetCode };
 
             // Nếu 2 người chưa từng chat 1-1, hệ thống sẽ tự động tạo phòng kết nối nhanh
@@ -2353,7 +2353,7 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
         try {
-            const doc = await db.collection("users").doc(newCode).get();
+            const doc = await db.collection("nhancong_users").doc(newCode).get();
             if (doc.exists) {
                 const newMembers = [...activeGroupFullData.members, newCode];
                 await db.collection("groups").doc(activeGroupId).update({ 

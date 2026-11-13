@@ -1,6 +1,5 @@
 import admin from 'firebase-admin';
 
-// Khởi tạo Firebase Admin SDK cho dự án NhanCong.net
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert({
@@ -19,21 +18,23 @@ export default async function handler(req, res) {
 
     try {
         const data = req.body;
-        const content = (data.content || "").trim().toUpperCase(); // Nội dung chuyển khoản
-        const amount = data.transferAmount || 0; // Số tiền nạp
+        const content = (data.content || "").trim().toUpperCase();
+        const amount = data.transferAmount || 0;
 
-        // Quy tắc quét mã của Nhân Công: 1 Chữ cái + 3 Số + 2 Chữ cái + Dấu gạch ngang + 3 Số (Ví dụ: T925MN-955)
+        // Quét mã định danh thành viên NhanCong (Ví dụ: T925MN-955)
         const matchCode = content.match(/[A-Z][0-9]{3}[A-Z]{2}-[0-9]{3}/i);
 
         if (matchCode) {
             const memberCode = matchCode[0].toUpperCase();
-            const userRef = db.collection("users").doc(memberCode);
+            
+            // TRỎ VÀO BẢNG RIÊNG NHÂN CÔNG ĐỂ KHÔNG XUNG ĐỘT VỚI SEEING.LOVE
+            const userRef = db.collection("nhancong_users").doc(memberCode);
             const userDoc = await userRef.get();
 
             if (userDoc.exists) {
                 let userData = userDoc.data();
 
-                // NẠP POINT (Quy đổi tự động: 1.000đ = 1 Point)
+                // Quy đổi: 1.000đ = 1 Point
                 const addedPoints = Math.round(amount / 1000);
                 const currentPoints = parseInt(userData.points) || 0;
 
@@ -42,11 +43,11 @@ export default async function handler(req, res) {
                     updatedAt: new Date().toISOString()
                 });
 
-                return res.status(200).json({ success: true, message: "Cộng Point NhanCong.net thành công" });
+                return res.status(200).json({ success: true, message: "Cộng Point nhancong_users thành công" });
             }
         }
 
-        return res.status(200).json({ success: true, message: "Không tìm thấy mã thành viên phù hợp" });
+        return res.status(200).json({ success: true, message: "Không tìm thấy mã thành viên" });
     } catch (error) {
         console.error("Lỗi Webhook NhanCong:", error);
         return res.status(500).json({ error: error.message });
