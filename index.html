@@ -1548,8 +1548,14 @@ svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='1
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function handleLoginClick() { showSection('code-login-section'); }
-    function showCodeLoginForm() { showSection('code-login-section'); }
+    function handleLoginClick() {
+        // Nếu đang ở trạng thái chưa đăng nhập, mở form đăng nhập
+        showSection('code-login-section');
+    }
+    
+    function showCodeLoginForm() {
+        showSection('code-login-section');
+    }
 
     async function handleCodeLogin(event) {
         event.preventDefault();
