@@ -482,6 +482,18 @@
             </div>
         </div>
     </section>
+    </main>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyA4RKQu7E63dIw6Y806UQq-WJqbWaeNP9A",
+        authDomain: "seeing-love.firebaseapp.com",
+        projectId: "seeing-love",
+        storageBucket: "seeing-love.appspot.com",
+        messagingSenderId: "969946122823",
+        appId: "1:969946122823:web:1e32b7085f72f568c7f62"
+    };
+    firebase.initializeApp(firebaseConfig);
     const appCheck = firebase.appCheck();
     appCheck.activate(
         new firebase.appCheck.ReCaptchaEnterpriseProvider('6Ldx_RMuAAAAALKC7vupgCb8aV8dD-1ds09xRl96'),
@@ -987,7 +999,7 @@
 
         const filterGender = document.getElementById('filter-gender-p').value;
         const filterAge = document.getElementById('filter-age-p').value;
-        const filterLooksEdu = document.getElementById('filter-looks-edu-p').value;
+        const filterLooksEdu = document.getElementById('filter-looks-edu-p') ? document.getElementById('filter-looks-edu-p').value : "";
         const filterPrice = parseInt(document.getElementById('filter-price-p').value) || 0;
         const filterExp = document.getElementById('filter-exp-p').value.trim().toLowerCase();
 
@@ -1491,7 +1503,7 @@
     function goHome() {
         if (isUserLoggedIn) {
             currentFilterSlideP = 1;
-            turnSearchPage(0);
+            changeFilterSlide(0);
             showSection('search-section');
         } else {
             showSection('login-section');
