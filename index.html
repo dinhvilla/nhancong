@@ -1679,10 +1679,35 @@
         if (!newPass || newPass.trim() === "") { alert("🛑 Bạn chưa tạo mật khẩu!"); return; }
 
         const ageVal = parseInt(document.getElementById('profile-age').value.trim()) || 18;
-        const professionVal = document.getElementById('profile-profession').value;
-        const looksEduVal = document.getElementById('profile-looks-edu').value;
+        const professionVal = document.getElementById('profile-profession').value || "Khác";
+        const looksEduVal = document.getElementById('profile-looks-edu').value || "Lao động phổ thông";
         
         let oldMemberCode = currentMemberCode; 
+        let isCodeUnique = false;
+
+        // Đổi chữ nút thành Đang lưu để có phản hồi hình ảnh tránh cảm giác web bị đơ
+        const submitBtn = document.getElementById('submit-profile-btn');
+        let oldBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý đám mây...';
+        submitBtn.disabled = true;
+
+        // 1. Vòng lặp kiểm tra mã trùng lặp an toàn
+        while (!isCodeUnique) {
+            try {
+                let checkDoc = await db.collection("users").doc(currentMemberCode).get();
+                if (checkDoc.exists) {
+                    if (isUserLoggedIn && currentMemberCode === oldMemberCode) {
+                        isCodeUnique = true;
+                    } else {
+                        currentMemberCode = generateUniqueMemberCode();
+                    }
+                } else {
+                    isCodeUnique = true;
+                }
+            } catch(e) {
+                isCodeUnique = true; // Tạm bỏ qua nếu nghẽn mạng
+            }
+        }
 
         // Khởi tạo giá trị mặc định cho GPS nếu chưa có
         let finalLat = typeof userLatitude !== 'undefined' ? userLatitude : 21.0285;
@@ -1690,49 +1715,58 @@
 
         const profileObj = {
             code: currentMemberCode,
-            nickname: document.getElementById('profile-nickname').value,
-            gender: document.getElementById('profile-gender').value,
+            nickname: document.getElementById('profile-nickname').value || "Thành viên",
+            gender: document.getElementById('profile-gender').value || "Nam",
             age: ageVal,
-            address: document.getElementById('profile-address').value,
-            height: document.getElementById('profile-height').value,
-            weight: document.getElementById('profile-weight').value,
+            address: document.getElementById('profile-address').value || "",
+            height: document.getElementById('profile-height').value || "",
+            weight: document.getElementById('profile-weight').value || "",
             profession: professionVal,
-            experience: document.getElementById('profile-experience').value,
+            experience: document.getElementById('profile-experience').value || "",
             quantity: parseInt(document.getElementById('profile-quantity').value) || 1,
             looksEdu: looksEduVal,
             price: parseInt(document.getElementById('profile-price').value) || 0,
-            bio: document.getElementById('bio-input').value,
+            bio: document.getElementById('bio-input').value || "",
             images: userBase64Images,
             lat: finalLat,
             lng: finalLng,
             points: typeof userPoints !== 'undefined' ? userPoints : 0,
-            password: newPass, // Lưu mật khẩu trực tiếp vào Firestore để khôi phục sau này
+            password: newPass.trim(), // Bổ sung lưu password để khôi phục tài khoản sau này
             updatedAt: new Date().toISOString()
         };
 
-        const submitBtn = document.getElementById('submit-profile-btn');
-        let oldBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang lưu...';
-        submitBtn.disabled = true;
-
         try {
-            // 1. Lưu hồ sơ sạch lên Firestore trước
-            await db.collection("users").doc(currentMemberCode).set(profileObj, { merge: true });
-
-            // 2. Chỉ tương tác với Auth nếu tài khoản chưa từng đăng nhập
-            if (!isUserLoggedIn) {
+            // 2. Logic tạo Auth an toàn chống văng lỗi Email Đã Tồn Tại
+            if (!isUserLoggedIn || oldMemberCode !== currentMemberCode) {
                 const fakeEmail = currentMemberCode + "@seeing.love";
                 try {
-                    // Thử đăng nhập trước xem tài khoản Auth đã tồn tại chưa
-                    await firebase.auth().signInWithEmailAndPassword(fakeEmail, newPass.trim());
+                    await firebase.auth().createUserWithEmailAndPassword(fakeEmail, newPass.trim());
                 } catch(authErr) {
-                    // Nếu chưa tồn tại, tiến hành đăng ký mới
-                    if(authErr.code === 'auth/user-not-found') {
-                        await firebase.auth().createUserWithEmailAndPassword(fakeEmail, newPass.trim());
+                    // Nếu kẹt mạng sinh lỗi "email-already-in-use", lập tức dùng nó để đăng nhập luôn!
+                    if (authErr.code === 'auth/email-already-in-use') {
+                        await firebase.auth().signInWithEmailAndPassword(fakeEmail, newPass.trim());
                     } else {
-                         // Nếu sai mật khẩu hoặc lỗi khác, ném ra ngoài để bắt lỗi
-                         throw authErr;
+                        throw authErr;
                     }
+                }
+            }
+
+            // 3. Ghi dữ liệu lên Firestore
+            await db.collection("users").doc(currentMemberCode).set(profileObj, { merge: true });
+
+            // 4. Đồng bộ Chat nếu đổi mã
+            if (isUserLoggedIn && oldMemberCode !== currentMemberCode) {
+                const matchesSnap = await db.collection("matches").where("members", "array-contains", oldMemberCode).get();
+                const batch = db.batch();
+                matchesSnap.forEach(doc => {
+                    let matchData = doc.data();
+                    let newMembers = matchData.members.map(m => m === oldMemberCode ? currentMemberCode : m);
+                    batch.update(doc.ref, { members: newMembers });
+                });
+                await batch.commit();
+                
+                if (activeChatPartnerCode) {
+                    document.getElementById('profile-member-code').innerText = currentMemberCode;
                 }
             }
             
@@ -1749,7 +1783,9 @@
             document.getElementById('bottom-nav').classList.remove('hidden');
             
             let badgeElem = document.getElementById('point-floating-badge');
-            if (badgeElem && !userManuallyClosedClock) badgeElem.classList.remove('hidden');
+            if (badgeElem && typeof userManuallyClosedClock !== 'undefined' && !userManuallyClosedClock) {
+                badgeElem.classList.remove('hidden');
+            }
             
             const authBtn = document.getElementById('auth-btn');
             if (authBtn) {
@@ -1761,9 +1797,10 @@
             showSection('search-section');
             
         } catch(e) {
-            console.error("Lỗi đăng ký:", e);
-            alert("❌ Không thể lưu hồ sơ: " + e.message);
+            console.error("Lỗi đám mây:", e);
+            alert("❌ Lỗi kết nối đám mây: " + e.message);
         } finally {
+            // Trả lại nguyên trạng cho nút bấm
             submitBtn.innerHTML = oldBtnText;
             submitBtn.disabled = false;
         }
