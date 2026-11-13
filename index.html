@@ -966,19 +966,6 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function changeFilterSlide(type, direction) {
-        currentFilterSlideP += direction;
-        if (currentFilterSlideP < 1) currentFilterSlideP = 1;
-        if (currentFilterSlideP > 2) currentFilterSlideP = 2; 
-
-        document.querySelectorAll('.filter-slide-p').forEach((s, idx) => {
-            s.classList.toggle('hidden', idx + 1 !== currentFilterSlideP);
-        });
-        document.getElementById('prev-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 1);
-        document.getElementById('next-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 2);
-        document.getElementById('search-filter-p-btn').classList.toggle('hidden', currentFilterSlideP !== 2);
-    }
-
     function openInfoModal(type) {
         const data = siteContents[type];
         if (data) {
