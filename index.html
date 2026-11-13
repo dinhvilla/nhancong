@@ -965,7 +965,18 @@
         document.getElementById('submit-profile-btn').classList.toggle('hidden', currentProfileSlide !== 4);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    function changeFilterSlide(direction) {
+        currentFilterSlideP += direction;
+        if (currentFilterSlideP < 1) currentFilterSlideP = 1;
+        if (currentFilterSlideP > 2) currentFilterSlideP = 2; 
 
+        document.querySelectorAll('.filter-slide-p').forEach((s, idx) => {
+            s.classList.toggle('hidden', idx + 1 !== currentFilterSlideP);
+        });
+        document.getElementById('prev-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 1);
+        document.getElementById('next-filter-p-btn').classList.toggle('hidden', currentFilterSlideP === 2);
+        document.getElementById('search-filter-p-btn').classList.toggle('hidden', currentFilterSlideP !== 2);
+    }
     function openInfoModal(type) {
         const data = siteContents[type];
         if (data) {
@@ -1489,9 +1500,8 @@
 
     function goHome() {
         if (isUserLoggedIn) {
-            // Bắt buộc reset lại vị trí bộ lọc về slide 1 khi mở tab Khám phá
             currentFilterSlideP = 1;
-            changeFilterSlide(0);
+            turnSearchPage(0);
             showSection('search-section');
         } else {
             showSection('login-section');
