@@ -538,7 +538,7 @@
     let userLatitude = 21.0285;
     let userLongitude = 105.8542;
     let chatActivityTimer = null;
-    let userPoints = 0; // Mặc định tạo tài khoản có 0 điểm
+    let userPoints = 0; 
     let topupAutoCloseTimer = null;
     let quizActiveData = null;
     let quizQuestionsList = [];
@@ -628,7 +628,7 @@
                     <img id="topup-vietqr-img" src="" alt="QR Code" class="w-40 h-40 object-contain rounded-xl">
                 </div>
                 <div>
-                    <a id="download-qr-link" href="#" target="_blank" class="text-xs text-rose-600 font-bold underline hover:text-rose-800">📥 Lưu ảnh QR để thanh toán)</a>
+                    <a id="download-qr-link" href="#" target="_blank" class="text-xs text-rose-600 font-bold underline hover:text-rose-800">📥 Lưu ảnh QR để thanh toán</a>
                 </div>
                 <p id="topup-account-info-text" class="text-[11px] text-gray-600 font-medium"></p>
                 <div class="p-3 bg-amber-50 rounded-2xl border border-amber-300 text-center space-y-1">
@@ -667,6 +667,7 @@
         let pts = parseInt(document.getElementById('topup-point-amount').value);
         let amount = pts * 1000;
         let memo = currentMemberCode + "P" + pts;
+        // Chuẩn hóa URL VietQR (mã hóa tên tài khoản bằng encodeURIComponent để không bị lỗi ảnh)
         let qrUrl = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${amount}&addInfo=${memo}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
         document.getElementById('topup-vietqr-img').src = qrUrl;
         document.getElementById('download-qr-link').href = qrUrl; 
