@@ -1520,28 +1520,37 @@ svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23f43f5e' rx='1
     }
 
     function showSection(sectionId) {
-        // Tự động ẩn menu 3 chấm khi chuyển qua màn hình khác
         const dropMenu = document.getElementById('chat-options-dropdown');
         if (dropMenu) dropMenu.classList.add('hidden');
 
-        // Rời khỏi phòng chat -> Xóa ngay session để lần sau bấm vào phải nhập lại PIN
         if (sectionId !== 'chat-room-section') {
             if (chatActivityTimer) clearTimeout(chatActivityTimer);
             activeChatPartnerCode = null;
-            if (isUserLoggedIn) document.getElementById('point-floating-badge').classList.remove('hidden'); // Hiện lại Point
+            let badgeElem = document.getElementById('point-floating-badge');
+            if (isUserLoggedIn && badgeElem && !userManuallyClosedClock) {
+                badgeElem.classList.remove('hidden');
+            }
         }
 
-        ['login-section', 'code-login-section', 'profile-section', 'search-section', 'chat-list-section', 'chat-room-section'].forEach(id => {
+        // Ẩn tất cả các trang
+        const allSections = ['login-section', 'code-login-section', 'profile-section', 'search-section', 'chat-list-section', 'chat-room-section'];
+        allSections.forEach(id => {
             let el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
-        document.getElementById(sectionId).classList.remove('hidden');
 
+        // Hiện trang được gọi
+        let targetSection = document.getElementById(sectionId);
+        if (targetSection) targetSection.classList.remove('hidden');
+
+        // Logic ẩn/hiện chân trang (Footer)
         const footer = document.getElementById('site-footer');
-        if (sectionId === 'login-section' || sectionId === 'code-login-section' || sectionId === 'profile-section') {
-            footer.classList.remove('hidden');
-        } else {
-            footer.classList.add('hidden');
+        if (footer) {
+            if (sectionId === 'login-section' || sectionId === 'code-login-section' || sectionId === 'profile-section') {
+                footer.classList.remove('hidden');
+            } else {
+                footer.classList.add('hidden');
+            }
         }
 
         updateAuthUIState();
