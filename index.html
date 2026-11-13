@@ -336,7 +336,7 @@
         <div id="main-search-wrapper" class="bg-white/95 p-5 rounded-3xl shadow-lg border-2 border-rose-200 space-y-3 text-sm">
             <div class="pb-2.5 border-b border-rose-100 flex justify-between items-center">
                 <h2 class="font-black text-gray-900 flex items-center gap-1.5 text-base">
-                    <i class="fa-solid fa-nhancong_users text-rose-600"></i> Tìm kiếm Nhân công
+                    <i class="fa-solid fa-users text-rose-600"></i> Tìm kiếm Nhân công
                 </h2>
             </div>
             <div class="filter-slide-p space-y-3" data-filter-slide="1">
@@ -482,8 +482,6 @@
             </div>
         </div>
     </section>
-    </main>
-
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyA4RKQu7E63dIw6Y806UQq-WJqbWaeNP9A",
@@ -1193,11 +1191,11 @@
                         <div onclick='openGroupChatRoom("${item.id}", ${JSON.stringify(item.fullData).replace(/'/g, "&#39;")})' class="p-3 bg-amber-50/40 hover:bg-amber-100/60 rounded-2xl border-2 border-amber-200 flex items-center justify-between cursor-pointer transition shadow-sm mb-2.5">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 to-yellow-500 flex items-center justify-center text-white text-xl shadow-inner border border-amber-600/30">
-                                    <i class="fa-solid fa-nhancong_users"></i>
+                                    <i class="fa-solid fa-users"></i>
                                 </div>
                                 <div>
                                     <h4 class="font-black text-amber-950 text-sm flex items-center gap-1.5">${item.name} ${roleTag}</h4>
-                                    <p class="text-[11px] text-amber-700 font-bold mt-0.5"><i class="fa-solid fa-nhancong_users-viewfinder"></i> ${item.membersCount} thành viên</p>
+                                    <p class="text-[11px] text-amber-700 font-bold mt-0.5"><i class="fa-solid fa-users-viewfinder"></i> ${item.membersCount} thành viên</p>
                                 </div>
                             </div>
                             <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-amber-500"><i class="fa-solid fa-chevron-right text-sm"></i></div>
@@ -2055,7 +2053,7 @@
         
         // Đổi giao diện thanh tiêu đề (Avatar và Tên)
         document.getElementById('chat-room-name').innerText = activeGroupFullData.groupName || "Nhóm Chat";
-        document.getElementById('chat-room-partner-code').innerHTML = `<i class="fa-solid fa-nhancong_users"></i> ${activeGroupFullData.members ? activeGroupFullData.members.length : 0} thành viên`;
+        document.getElementById('chat-room-partner-code').innerHTML = `<i class="fa-solid fa-users"></i> ${activeGroupFullData.members ? activeGroupFullData.members.length : 0} thành viên`;
         
         // Tạm dùng icon mặc định cho nhóm (chưa hỗ trợ upload ảnh nhóm)
         let avt = "https://ui-avatars.com/api/?name=" + encodeURIComponent(activeGroupFullData.groupName || "G") + "&background=fbbf24&color=fff";
@@ -2086,13 +2084,13 @@
         
         if (activeGroupFullData.adminCode === currentMemberCode) {
             dropMenu.innerHTML = `
-                <button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-nhancong_users-gear"></i> Quản lý Nhóm</button>
+                <button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-users-gear"></i> Quản lý Nhóm</button>
                 <button onclick="event.stopPropagation(); deleteGroupChat();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-red-600 font-bold flex items-center gap-2"><i class="fa-solid fa-trash-can"></i> Giải tán Nhóm</button>
             `;
         } else {
             // Phó nhóm vẫn được cấp nút Quản lý để thao tác Thêm/Xóa nhân sự, Nhân viên thì trắng tay
             let manageBtnHtml = isCoAdmin ? 
-                `<button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-nhancong_users-gear"></i> Quản lý Nhóm</button>` : ``;
+                `<button onclick="event.stopPropagation(); openGroupSettingsModal();" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-amber-700 font-bold flex items-center gap-2"><i class="fa-solid fa-users-gear"></i> Quản lý Nhóm</button>` : ``;
             
             dropMenu.innerHTML = `
                 ${manageBtnHtml}
