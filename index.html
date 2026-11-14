@@ -774,7 +774,7 @@
 
         // Khóa lan truyền lực vuốt từ khung tin nhắn ra ngoài
         const msgScroll = document.getElementById('chat-messages-scroll');
-        if (msgScroll && !msgScroll._ overscrollLocked) {
+        if (msgScroll && !msgScroll._overscrollLocked) {
             msgScroll._overscrollLocked = true;
             msgScroll.style.overscrollBehavior = 'contain';
             msgScroll.style.webkitOverflowScrolling = 'touch';
