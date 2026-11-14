@@ -737,15 +737,14 @@
     }
 
     // =========================================================================
-    // TỰ ĐỘNG KHỚP CHIỀU CAO PHÒNG CHAT VỪA KHÍT GIỮA HEADER VÀ BOTTOM-NAV
-    // (Không bị che ô nhập chữ khi mở từ Icon App & Không bị lơ lửng trên Safari)
+    // =========================================================================
+    // TỰ ĐỘNG KHỚP CHIỀU CAO & GHIM CỨNG Ô NHẬP TIN NHẮN (CHỐNG ĐÀN HỒI TRÊN IPHONE)
     // =========================================================================
     function autoFitChatRoomHeight() {
         const isStandaloneApp = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
         const headerEl = document.querySelector('header');
         const bottomNavEl = document.getElementById('bottom-nav');
 
-        // Nếu đang mở từ Icon màn hình chính (App), đảm bảo Header hạ xuống khỏi vùng mờ đồng hồ iPhone
         if (isStandaloneApp && headerEl) {
             headerEl.style.paddingTop = 'max(env(safe-area-inset-top), 44px)';
         }
@@ -757,31 +756,52 @@
         const mainEl = document.querySelector('main.app-main-container');
         if (!chatSection || !mainEl) return;
 
-        // Nếu không ở trong phòng chat -> Trả lại khoảng đệm mặc định cho các trang Tìm kiếm / Hồ sơ
+        // Khi KHÔNG ở trong phòng chat -> Mở lại cuộn bình thường cho trang Tìm kiếm & Hồ sơ
         if (chatSection.classList.contains('hidden')) {
-            mainEl.style.paddingTop = '';
-            mainEl.style.paddingBottom = '';
+            mainEl.style.removeProperty('padding-top');
+            mainEl.style.removeProperty('padding-bottom');
+            mainEl.style.removeProperty('overflow-y');
+            mainEl.style.removeProperty('overscroll-behavior');
             return;
         }
 
-        // Không co giãn lại khung khi người dùng đang bấm gõ bàn phím ảo
+        // Khi ĐANG ở trong phòng chat -> Khóa cứng khung main (!important) để ô nhập chữ không bao giờ bị kéo đàn hồi
+        mainEl.style.setProperty('padding-top', '6px', 'important');
+        mainEl.style.setProperty('padding-bottom', '6px', 'important');
+        mainEl.style.setProperty('overflow-y', 'hidden', 'important');
+        mainEl.style.setProperty('overscroll-behavior', 'none', 'important');
+        mainEl.scrollTop = 0;
+
+        // Khóa lan truyền lực vuốt từ khung tin nhắn ra ngoài
+        const msgScroll = document.getElementById('chat-messages-scroll');
+        if (msgScroll && !msgScroll._ overscrollLocked) {
+            msgScroll._overscrollLocked = true;
+            msgScroll.style.overscrollBehavior = 'contain';
+            msgScroll.style.webkitOverflowScrolling = 'touch';
+        }
+
+        // Chặn lực kéo đàn hồi khi người dùng vuốt trực tiếp lên thanh tiêu đề phòng chat hoặc thanh ô nhập chữ
+        const chatCard = chatSection.querySelector('div');
+        if (chatCard && !chatCard._touchPinLocked) {
+            chatCard._touchPinLocked = true;
+            chatCard.addEventListener('touchmove', function(e) {
+                if (!e.target.closest('#chat-messages-scroll')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+
         if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
             return;
         }
 
-        const chatCard = chatSection.querySelector('div');
         if (!chatCard || !headerEl || !bottomNavEl) return;
-
-        // Thu gọn khoảng đệm thừa của thẻ main khi đang mở phòng chat
-        mainEl.style.paddingTop = '8px';
-        mainEl.style.paddingBottom = '8px';
 
         const headerBottom = headerEl.getBoundingClientRect().bottom;
         const navTop = bottomNavEl.getBoundingClientRect().top;
 
-        // Tính chiều cao chính xác từ đáy Header đến đỉnh thanh điều hướng dưới (chừa đúng 16px khoảng thở)
         if (navTop > headerBottom + 200) {
-            const exactHeight = Math.floor(navTop - headerBottom - 16);
+            const exactHeight = Math.floor(navTop - headerBottom - 12);
             chatCard.style.height = exactHeight + 'px';
         }
     }
