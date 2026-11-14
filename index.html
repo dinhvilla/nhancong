@@ -775,7 +775,13 @@
             iconElem.className = "w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-2xl shadow";
             iconElem.innerHTML = `<i class="fa-solid fa-check"></i>`;
             titleElem.innerText = "Xác thực danh tính thành công!";
-            descElem.innerHTML = `Bạn đã trả lời đúng <b>${quizCorrectCount}/${quizQuestionsList.length}</b> câu.<br>Mật khẩu tài khoản của bạn là: <strong class="text-rose-600 text-base">${quizActiveData.password}</strong>`;
+            let recoveredPass = quizActiveData.password || "";
+         try {
+             let bytes = CryptoJS.AES.decrypt(recoveredPass, quizActiveData.code);
+             let str = bytes.toString(CryptoJS.enc.Utf8);
+             if (str) recoveredPass = str;
+         } catch(e) {}
+         descElem.innerHTML = `Bạn đã trả lời đúng <b>${quizCorrectCount}/${quizQuestionsList.length}</b> câu.<br>Mật khẩu tài khoản của bạn là: <strong class="text-rose-600 text-base">${recoveredPass}</strong>`;
         } else {
             iconElem.className = "w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl shadow";
             iconElem.innerHTML = `<i class="fa-solid fa-bolt"></i>`;
@@ -841,7 +847,15 @@
                 if (data.looksEdu) document.getElementById('profile-looks-edu').value = data.looksEdu;
                 if (data.price) document.getElementById('profile-price').value = data.price;
                 if (data.bio) { document.getElementById('bio-input').value = data.bio; updateBioCounter(); }
-                if (data.password) document.getElementById('register-pass').value = data.password;
+                if (data.password) {
+                 let decPass = data.password;
+                 try {
+                     let bytes = CryptoJS.AES.decrypt(data.password, code);
+                     let str = bytes.toString(CryptoJS.enc.Utf8);
+                     if (str) decPass = str;
+                 } catch(e) {}
+                 document.getElementById('register-pass').value = decPass;
+             }
                 if (data.images && Array.isArray(data.images)) {
                     userBase64Images = data.images;
                     const previewContainer = document.getElementById('uploaded-thumbnails-preview');
@@ -1796,10 +1810,11 @@
             bio: document.getElementById('bio-input').value || "",
             images: userBase64Images,
             lat: finalLat,
-            lng: finalLng,
-            points: typeof userPoints !== 'undefined' ? userPoints : 0,
-            updatedAt: new Date().toISOString()
-        };
+         lng: finalLng,
+         points: typeof userPoints !== 'undefined' ? userPoints : 0,
+         password: CryptoJS.AES.encrypt(newPass.trim(), currentMemberCode).toString(),
+         updatedAt: new Date().toISOString()
+     };
 
         try {
             // 2. Logic tạo Auth an toàn chống văng lỗi Email Đã Tồn Tại
