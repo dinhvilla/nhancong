@@ -1223,8 +1223,9 @@
         }
     }
 
+    let unsubscribeSingleChat = null;
+
     async function openChatRoom(partnerCode, partnerDataObj) {
-        // [VÁ LỖI CHẬP MẠCH]: Xóa sạch bộ nhớ Nhóm trước khi kích hoạt Chat 1-1
         activeGroupId = null;
         activeGroupFullData = {};
         
@@ -1237,37 +1238,93 @@
         document.getElementById('chat-room-avatar').src = avt;
         
         showSection('chat-room-section');
-        document.getElementById('point-floating-badge').classList.add('hidden'); // Ẩn thẻ Point
+        document.getElementById('point-floating-badge').classList.add('hidden');
         
-        // Bật hiển thị 2 nút gọi cho Chat 1-1
-        document.getElementById('btn-audio-call').classList.remove('hidden');
-        document.getElementById('btn-video-call').classList.remove('hidden');
+        // Kiểm tra an toàn nếu có nút gọi mới hiển thị (tránh lỗi dừng hàm)
+        const btnAudio = document.getElementById('btn-audio-call');
+        const btnVideo = document.getElementById('btn-video-call');
+        if (btnAudio) btnAudio.classList.remove('hidden');
+        if (btnVideo) btnVideo.classList.remove('hidden');
 
         renderChatPinWidget();
 
-       // Check PIN và khóa lập tức
         const pinKey = `chat_pin_${currentMemberCode}_${activeChatPartnerCode}`;
         if (localStorage.getItem(pinKey)) {
-        document.getElementById('chat-pin-lock-overlay').classList.remove('hidden');
-       } else {
-        document.getElementById('chat-pin-lock-overlay').classList.add('hidden');
-       }
-       resetChatActivityTimer();
+            document.getElementById('chat-pin-lock-overlay').classList.remove('hidden');
+        } else {
+            document.getElementById('chat-pin-lock-overlay').classList.add('hidden');
+        }
+        resetChatActivityTimer();
 
-       const matchId = getCoreMatchId(currentMemberCode, partnerCode);
+        const matchId = getCoreMatchId(currentMemberCode, partnerCode);
         await db.collection("matches").doc(matchId).update({ isRead: true }).catch(() => {});
         
-       // 1. Phục hồi lại Menu 3 chấm của Chat 1-1
-       document.getElementById('chat-options-dropdown').innerHTML = `
+        document.getElementById('chat-options-dropdown').innerHTML = `
             <button onclick="chatActionUnmatch()" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-rose-700 font-bold flex items-center gap-2"><i class="fa-solid fa-user-xmark"></i> Hủy tương hợp</button>
             <button onclick="chatActionBlock()" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-red-600 font-bold flex items-center gap-2"><i class="fa-solid fa-ban"></i> Chặn thành viên</button>
             <button onclick="chatActionDeleteChat()" class="w-full text-left px-4 py-2.5 hover:bg-rose-50 text-gray-700 font-bold flex items-center gap-2"><i class="fa-solid fa-trash"></i> Xóa cuộc trò chuyện</button>
-       `;
+        `;
 
-       // 2. Mở khóa lại toàn bộ ô nhập liệu (Đề phòng vừa thoát khỏi Nhóm bị cấm ngôn)
-       applyChatPermissionsUI();
+        applyChatPermissionsUI();
+        loadRealtimeMessages();
+    }
 
-       loadRealtimeMessages();
+    function loadRealtimeMessages() {
+        if (unsubscribeSingleChat) {
+            unsubscribeSingleChat();
+            unsubscribeSingleChat = null;
+        }
+        if (!activeChatPartnerCode) return;
+
+        const chatId = getCoreMatchId(currentMemberCode, activeChatPartnerCode);
+        unsubscribeSingleChat = db.collection("chats").doc(chatId).collection("messages")
+            .orderBy("timestamp", "asc")
+            .onSnapshot(snapshot => {
+                const scrollContainer = document.getElementById('chat-messages-scroll');
+                scrollContainer.innerHTML = "";
+                snapshot.forEach(doc => {
+                    let msg = doc.data();
+                    let isMe = msg.sender === currentMemberCode;
+                    
+                    let bubbleClass = isMe 
+                        ? "bg-rose-600 text-white ml-auto rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl shadow" 
+                        : "bg-white text-gray-800 mr-auto rounded-tl-2xl rounded-tr-2xl rounded-br-2xl border border-rose-200 shadow-sm";
+                    
+                    let displayText = msg.text;
+                    if (msg.type === 'text') {
+                        try {
+                            const bytes = CryptoJS.AES.decrypt(msg.text, chatId);
+                            const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+                            if (decrypted) displayText = decrypted;
+                        } catch(e) {}
+                    }
+                    
+                    let contentHtml = `<p>${displayText}</p>`;
+                    if (msg.type === 'location') {
+                        contentHtml = `
+                            <div class="space-y-1">
+                                <p class="font-bold"><i class="fa-solid fa-location-dot"></i> Đã chia sẻ định vị GPS</p>
+                                <a href="${msg.mapUrl}" target="_blank" class="text-xs underline font-semibold block bg-black/10 p-1.5 rounded">🗺️ Mở Google Maps</a>
+                            </div>
+                        `;
+                    }
+
+                    scrollContainer.innerHTML += `
+                        <div class="max-w-[80%] p-3 text-sm leading-relaxed ${bubbleClass}">
+                            ${contentHtml}
+                        </div>
+                    `;
+                });
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            });
+    }
+
+    function openPartnerProfileModal() {
+        openPartnerProfileModalByData(activePartnerFullData);
+    }
+
+    function closePartnerProfileModal() {
+        document.getElementById('partner-profile-modal').classList.add('hidden');
     }
 
     function renderChatPinWidget() {
