@@ -4,7 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nhân Công - Việc Làm Thời Vụ</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23e11d48' d='M96 96c0-17.7 14.3-32 32-32h256c17.7 0 32 14.3 32 32v32h96c17.7 0 32 14.3 32 32v288c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96V96zm64 32h192V96H160v32z'/></svg>">
+    <meta name="theme-color" content="#e11d48">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nhân Công">
+    <link id="nc-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%23e11d48'/><text x='256' y='225' font-family='Arial, sans-serif' font-size='125' font-weight='900' fill='%23fef08a' text-anchor='middle'>Nhân</text><text x='256' y='370' font-family='Arial, sans-serif' font-size='125' font-weight='900' fill='%23ffffff' text-anchor='middle'>Công</text></svg>">
+    <link id="nc-apple-icon" rel="apple-touch-icon" href="">
+    <link id="nc-manifest" rel="manifest" href="">
+    <script>
+        (function() {
+            const c = document.createElement('canvas');
+            c.width = 512; c.height = 512;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#e11d48';
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(0, 0, 512, 512, 110) : ctx.rect(0, 0, 512, 512);
+            ctx.fill();
+            const grad = ctx.createLinearGradient(0, 0, 512, 0);
+            grad.addColorStop(0, '#fde68a');
+            grad.addColorStop(0.5, '#ffffff');
+            grad.addColorStop(1, '#fef08a');
+            ctx.fillStyle = grad;
+            ctx.font = '900 125px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Nhân', 256, 225);
+            ctx.fillText('Công', 256, 370);
+            const pngUrl = c.toDataURL('image/png');
+            document.getElementById('nc-apple-icon').href = pngUrl;
+            const manifest = {
+                name: "Nhân Công - Việc Làm Thời Vụ",
+                short_name: "Nhân Công",
+                start_url: "/?source=pwa",
+                display: "standalone",
+                background_color: "#fdf2f8",
+                theme_color: "#e11d48",
+                icons: [{ src: pngUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+            };
+            document.getElementById('nc-manifest').href = "data:application/manifest+json;charset=utf-8," + encodeURIComponent(JSON.stringify(manifest));
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -386,8 +425,9 @@
                     </select>
                 </div>
                 <div>
-                    <select id="profile-looks-edu" class="w-full px-3 py-3 rounded-xl outline-none bg-white font-semibold text-amber-950 border border-amber-300">
+                    <select id="filter-looks-edu-p" class="w-full px-3 py-3 rounded-xl outline-none bg-white font-semibold text-amber-950 border border-amber-300">
                             <option value="" disabled selected>Trình độ & Kinh nghiệm</option>
+                            <option value="Tất cả/Bất kể">Tất cả/Bất kể</option>
                             <option value="Lao động phổ thông">Lao động phổ thông</option>
                             <option value="Chuyên môn trung bình">Chuyên môn trung bình</option>
                             <option value="Tay nghề khá & Trình độ căn bản">Tay nghề khá & Trình độ căn bản</option>
