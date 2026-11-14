@@ -1106,7 +1106,7 @@
                         <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100">
                             <p class="text-gray-600 italic">"${c.desc}"</p>
                         </div>
-                        <button onclick="handleLikeCandidate('${c.code}', '${c.name}')" class="w-full py-2.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow"><i class="fa-solid fa-comments text-yellow-300 mr-1"></i> Mở khóa liên hệ (5 Point)</button>
+                        <button onclick="handleLikeCandidate('${c.code}', '${c.name}')" class="w-full py-2.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition shadow"><i class="fa-solid fa-comments text-yellow-300 mr-1"></i> Mở khóa liên hệ (0.5 Point)</button>
                     </div>
                 `;
             });
@@ -1116,31 +1116,31 @@
     }
 
     async function handleLikeCandidate(partnerCode, partnerName) {
-        if (userPoints < 5) {
-            alert("⚠️ Số dư Point không đủ! Vui lòng nạp thêm Point để mở khóa liên hệ (Phí: 5 Point/lượt).");
-            openPointTopupModal();
-            return;
-        }
+     if (userPoints < 0.5) {
+         alert("⚠️ Số dư Point không đủ! Vui lòng nạp thêm Point để mở khóa liên hệ (Phí: 0.5 Point/lượt).");
+         openPointTopupModal();
+         return;
+     }
 
-        if(!confirm(`Bạn có chắc chắn muốn dùng 5 Point để mở khóa liên hệ với [${partnerName}] không?`)) return;
+     if(!confirm(`Bạn có chắc chắn muốn dùng 0.5 Point để mở khóa liên hệ với [${partnerName}] không?`)) return;
 
-        try {
-            const matchId = getCoreMatchId(currentMemberCode, partnerCode);
-            await db.collection("matches").doc(matchId).set({
-                members: [currentMemberCode, partnerCode],
-                updatedAt: new Date().toISOString()
-            });
+     try {
+         const matchId = getCoreMatchId(currentMemberCode, partnerCode);
+         await db.collection("matches").doc(matchId).set({
+             members: [currentMemberCode, partnerCode],
+             updatedAt: new Date().toISOString()
+         });
 
-            // Trừ point sau khi kết nối thành công
-            userPoints -= 5;
-            updatePointFloatingBadgeUI();
-            db.collection("nhancong_users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
+         // Trừ 0.5 point sau khi kết nối thành công
+         userPoints -= 0.5;
+         updatePointFloatingBadgeUI();
+         db.collection("nhancong_users").doc(currentMemberCode).update({ points: userPoints }).catch(()=>{});
 
-            alert(`✅ Mở khóa thành công! Hãy vào Hộp thư để trò chuyện với ${partnerName}.`);
-        } catch(e) {
-            alert("Lỗi kết nối đám mây!");
-        }
-    }
+         alert(`✅ Mở khóa thành công! Hãy vào Hộp thư để trò chuyện với ${partnerName}.`);
+     } catch(e) {
+         alert("Lỗi kết nối đám mây!");
+     }
+ }
 
     async function openChatList() {
         showSection('chat-list-section');
@@ -1911,7 +1911,7 @@
         paymentListenerUnsubscribe = db.collection("nhancong_users").doc(memberCode).onSnapshot((doc) => {
             if (doc.exists) {
                 let data = doc.data();
-                let currentCloudPoints = parseInt(data.points) || 0;
+                let currentCloudPoints = parseFloat(data.points) || 0;
 
                 if (currentCloudPoints > oldPoints) {
                     userPoints = currentCloudPoints; 
